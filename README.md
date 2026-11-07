@@ -153,49 +153,15 @@ df_claims.head(5)
 
 ## 3. Data Dictionary
 
-The workbook's `Data_Dictionary` sheet documents every column with its meaning and known data problems. All 40 rows are below.
+The workbook's `Data_Dictionary` sheet documents all 39 columns. Here it is condensed to one row per table.
 
-| Table | Column | Type | Meaning | Known issues |
-|---|---|---|---|---|
-| `dim_customers` | `customer_id` | Text (key) | Unique customer code, format CUS-#### | Duplicate rows |
-| `dim_customers` | `company_name` | Text | Registered customer name | Extra spaces, mixed case |
-| `dim_customers` | `hq_country` | Text | Customer headquarters country | Variants: UK / U.K. / United Kingdom |
-| `dim_customers` | `industry` | Text | Customer industry vertical | Missing values |
-| `dim_customers` | `customer_tier` | Text | Platinum, Gold, Silver or Bronze | Mixed case, spaces |
-| `dim_customers` | `contract_sla_days` | Integer | Contracted delivery window in days (on top of transit time) | Text such as '5 days', 'three', 'N/A' |
-| `dim_customers` | `credit_limit_usd` | Currency | Approved credit limit in USD | Stored as text with $, USD, spaces |
-| `dim_carriers` | `carrier_id` | Text (key) | Unique carrier code, format CAR-### | nan |
-| `dim_carriers` | `carrier_name` | Text | Carrier trading name | Extra spaces, mixed case |
-| `dim_carriers` | `primary_mode` | Text | Air, Sea, Road or Rail | 'Air Freight', upper/lower case |
-| `dim_carriers` | `base_region` | Text | EMEA, APAC, AMER or Africa | nan |
-| `dim_carriers` | `contract_rate_per_kg_usd` | Currency | Agreed carrier rate per kg in USD | Text with symbols |
-| `dim_carriers` | `fleet_size` | Integer | Number of vehicles / vessels / aircraft | Negative and impossible values |
-| `fact_shipments` | `shipment_id` | Text (key) | Unique shipment code, format SHP-##### | Duplicate rows |
-| `fact_shipments` | `customer_id` | Text (FK) | Links to dim_customers | Orphan codes, lower case, spaces |
-| `fact_shipments` | `carrier_id` | Text (FK) | Links to dim_carriers | Missing values |
-| `fact_shipments` | `origin_country` | Text | Country the shipment leaves | Spelling variants |
-| `fact_shipments` | `destination_country` | Text | Country the shipment arrives | Spelling variants |
-| `fact_shipments` | `transport_mode` | Text | Air, Sea, Road or Rail | Case, spaces, 'Air Freight' |
-| `fact_shipments` | `ship_date` | Date | Date the shipment was dispatched | Six different date formats, junk values |
-| `fact_shipments` | `promised_delivery_date` | Date | Delivery date promised to the customer | Mixed date formats |
-| `fact_shipments` | `actual_delivery_date` | Date | Date actually delivered (blank if not delivered) | Mixed formats, blanks, 'TBD' |
-| `fact_shipments` | `weight_kg` | Decimal | Chargeable weight in kilograms | Negative, x1000 outliers, blanks |
-| `fact_shipments` | `freight_cost_usd` | Currency | Cost paid to the carrier in USD | Text with symbols |
-| `fact_shipments` | `fuel_surcharge_usd` | Currency | Fuel surcharge paid to the carrier in USD | Text with symbols, blanks |
-| `fact_shipments` | `shipment_status` | Text | Delivered, In Transit, Delayed, Returned, Cancelled | Typos: 'Delaied', 'Tranist', case |
-| `fact_invoices` | `invoice_id` | Text (key) | Unique invoice code, format INV-###### | Duplicate rows |
-| `fact_invoices` | `shipment_id` | Text (FK) | Links to fact_shipments | Orphan codes |
-| `fact_invoices` | `invoice_date` | Date | Date the customer was invoiced | Mixed date formats |
-| `fact_invoices` | `billed_amount_usd` | Currency | Amount invoiced to the customer in USD | Text with symbols |
-| `fact_invoices` | `payment_status` | Text | Paid, Pending, Overdue or Disputed | Case and spaces |
-| `fact_invoices` | `paid_date` | Date | Date payment was received (blank unless Paid) | Mixed formats, blanks |
-| `fact_claims` | `claim_id` | Text (key) | Unique claim code, format CLM-#### | Duplicate rows |
-| `fact_claims` | `shipment_id` | Text (FK) | Links to fact_shipments | nan |
-| `fact_claims` | `claim_type` | Text | Damage, Loss, Delay Penalty, Customs Hold, Temperature Breach | Case and spaces |
-| `fact_claims` | `claim_amount_usd` | Currency | Value of the claim in USD | Text with symbols |
-| `fact_claims` | `claim_status` | Text | Open, Settled, Rejected or Under Review | Case and spaces |
-| `fact_claims` | `days_to_resolve` | Integer | Days from claim opened to closed | Blanks and negative values |
-| `fact_claims` | `root_cause` | Text | Handling, Packaging, Carrier Delay, Weather, Customs, Unknown | Missing values |
+| Table | Columns | What it holds | Known problems |
+|---|---|---|---|
+| `dim_customers` (7 columns) | `customer_id`, `company_name`, `hq_country`, `industry`, `customer_tier`, `contract_sla_days`, `credit_limit_usd` | One row per customer: where they are, their tier, the delivery promise (SLA days) and credit limit | Duplicates, extra spaces, country variants (UK / U.K.), SLA as text ("5 days", "three"), credit limit stored with `$` and `USD` |
+| `dim_carriers` (6 columns) | `carrier_id`, `carrier_name`, `primary_mode`, `base_region`, `contract_rate_per_kg_usd`, `fleet_size` | One row per carrier with its main mode and contract rate | Mixed case and spaces, "Air Freight" variants, rates with symbols, impossible fleet sizes |
+| `fact_shipments` (13 columns) | `shipment_id`, `customer_id`, `carrier_id`, `origin_country`, `destination_country`, `transport_mode`, `ship_date`, `promised_delivery_date`, `actual_delivery_date`, `weight_kg`, `freight_cost_usd`, `fuel_surcharge_usd`, `shipment_status` | One row per shipment: route, mode, dates, weight and cost | Duplicates, orphan codes, missing values, spelling variants, six date formats, "TBD" |
+| `fact_invoices` (6 columns) | `invoice_id`, `shipment_id`, `invoice_date`, `billed_amount_usd`, `payment_status`, `paid_date` | One row per invoice and how it was paid | Duplicates, orphan codes, mixed dates, amounts with symbols |
+| `fact_claims` (7 columns) | `claim_id`, `shipment_id`, `claim_type`, `claim_amount_usd`, `claim_status`, `days_to_resolve`, `root_cause` | One row per claim: type, cost and cause | Duplicates, case and spaces, symbols, blanks and negative values |
 
 **Leakage rules** (from the `Leakage_Rules` sheet). These columns exist on purpose and are kept out of the models:
 
@@ -222,13 +188,6 @@ The audit changes nothing. It counts every problem first, table by table.
 | Numbers stored as text | Credit limits as `$394,000.00`, SLA as `7d`, rates as `USD 2.98`, billed amounts as `USD 213.02` |
 | Dates | Several formats (`06-07-2025`, `12 Feb 2025`, `2025-10-13`, `June 23, 2025`) and `TBD` |
 | Impossible values | Fleet size of 99999 and -12, negative weights |
-
-### Charts
-
-<p align="center">
-  <img src="images/audit_01_issues_found.png" alt="What the audit found" width="100%">
-</p>
-<p align="center"><em>What the audit found</em></p>
 
 ### Code: data quality audit
 
@@ -333,61 +292,6 @@ for table_name in ["fact_invoices", "fact_claims"]:
         f"{df['shipment_id'].isna().sum():,} null shipment IDs"
     )
 ```
-### Code: charts
-
-```python
-# ======================================================================
-# CHARTS FOR THE README - every chart below is drawn from the notebook's tables
-# Run after the notebook: it needs relationship_table, cleaned_tables, scaled_X_test,
-# y_test, models_by_objective, date_for_objective and anomaly_results in memory.
-# ======================================================================
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch
-from sklearn.metrics import (roc_curve, roc_auc_score, precision_recall_curve,
-                             average_precision_score, confusion_matrix, mean_absolute_error)
-
-BLUE, ORANGE, INK, SOFT, GRID, GREY = "#2a78d6", "#eb6834", "#0b0b0b", "#52514e", "#e4e3df", "#c9c7c1"
-OUT = "charts_out"
-plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
-                     "axes.edgecolor": "#999", "axes.labelcolor": SOFT, "xtick.color": SOFT,
-                     "ytick.color": SOFT, "axes.titleweight": "bold", "axes.titlesize": 11,
-                     "axes.titlelocation": "left", "figure.facecolor": "white"})
-
-
-def save(fig, name):
-    fig.savefig(f"{OUT}/{name}.png", dpi=110, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-
-
-def clean_mode(s):
-    """For charts only: merge the spelling variants (AIR, air, Air Freight) into one mode."""
-    s = s.astype("string").str.strip().str.lower()
-    return s.replace({"air freight": "Air", "air": "Air", "sea": "Sea", "road": "Road", "rail": "Rail"})
-
-
-def late_rate(frame, by):
-    known = frame[frame["late_flag"].notna()].copy()
-    known["late_flag"] = known["late_flag"].astype(float)
-    return known.groupby(by)["late_flag"].agg(["mean", "count"])
-
-
-
-def chart_audit():
-    issues = {"Shipments: missing actual delivery date": 157, "Invoices: missing paid date": 631,
-              "Shipments: customer not in customer table": 126, "Shipments: exact duplicate rows": 40,
-              "Shipments: missing weight": 30, "Invoices: exact duplicate rows": 25,
-              "Shipments: missing carrier": 18, "Claims: exact duplicate rows": 8}
-    fig, ax = plt.subplots(figsize=(9, 4.2))
-    s = pd.Series(issues).sort_values()
-    ax.barh(s.index, s.values, color=BLUE, height=.6)
-    for i, v in enumerate(s.values):
-        ax.text(v + 8, i, f"{v:,}", va="center", fontsize=9, color=INK)
-    ax.set_title("What the data quality audit found (row counts)")
-    ax.set_xlim(0, 720); ax.grid(axis="x", color=GRID); ax.set_axisbelow(True)
-    save(fig, "audit_01_issues_found")
-```
 
 ---
 
@@ -404,13 +308,6 @@ Cleaning is applied table by table: strip spaces, parse every date style, turn m
 | `fact_claims` | 238 | 230 | 8 |
 
 I did not merge spelling variants such as `AIR`, `Air` and `air`. That decision matters later: it is why the encoded tables in section 10 carry 172 dummy columns instead of about 50. Standardising categories first is the first improvement I would make.
-
-### Charts
-
-<p align="center">
-  <img src="images/cleaning_01_rows_before_after.png" alt="Rows before and after cleaning" width="100%">
-</p>
-<p align="center"><em>Rows before and after cleaning</em></p>
 
 ### Code: data cleaning and error checking
 
@@ -494,23 +391,6 @@ for table_name, original_df in tables.items():
 
 cleaning_summary = pd.DataFrame(summary).set_index("table")
 display(cleaning_summary)
-```
-### Code: charts
-
-```python
-def chart_cleaning():
-    tables = ["Customers", "Carriers", "Shipments", "Invoices", "Claims"]
-    before, after = [63, 14, 2540, 2292, 238], [60, 14, 2500, 2267, 230]
-    fig, ax = plt.subplots(figsize=(9, 4))
-    x = np.arange(5)
-    ax.bar(x - .2, before, .4, color=GREY, label="Before cleaning")
-    ax.bar(x + .2, after, .4, color=BLUE, label="After cleaning")
-    for i, (b, a) in enumerate(zip(before, after)):
-        ax.text(i + .2, a, f"-{b - a}" if b != a else "0", ha="center", va="bottom", fontsize=9, color=INK)
-    ax.set_xticks(x); ax.set_xticklabels(tables); ax.set_yscale("log")
-    ax.set_title("Rows before and after cleaning (labels show duplicates removed)")
-    ax.legend(frameon=False); ax.grid(axis="y", color=GRID); ax.set_axisbelow(True)
-    save(fig, "cleaning_01_rows_before_after")
 ```
 
 ---
@@ -741,13 +621,6 @@ The five tables are joined into one **shipment-level relationship table** (2,500
 
 All stay in the table, with blanks, rather than being dropped.
 
-### Charts
-
-<p align="center">
-  <img src="images/star_schema.png" alt="How the five tables connect" width="100%">
-</p>
-<p align="center"><em>How the five tables connect</em></p>
-
 ### Code: relationship table (star schema)
 
 ```python
@@ -922,41 +795,12 @@ else:
 
 display(relationship_table.head())
 ```
-### Code: charts
-
-```python
-def chart_star_schema():
-    fig, ax = plt.subplots(figsize=(11, 5.6)); ax.axis("off"); ax.set_xlim(0, 11); ax.set_ylim(0, 5.6)
-    boxes = {"dim_customers": (0.3, 3.6, ["customer_id (key)", "company_name", "industry, tier", "contract_sla_days", "credit_limit_usd"]),
-             "dim_carriers": (0.3, 0.3, ["carrier_id (key)", "carrier_name", "primary_mode", "contract_rate_per_kg_usd", "fleet_size"]),
-             "fact_shipments": (4.3, 1.9, ["shipment_id (key)", "customer_id  (FK)", "carrier_id  (FK)", "route, mode, dates", "weight, freight cost"]),
-             "fact_invoices": (8.2, 3.6, ["invoice_id (key)", "shipment_id  (FK)", "billed_amount_usd", "payment_status", "paid_date"]),
-             "fact_claims": (8.2, 0.3, ["claim_id (key)", "shipment_id  (FK)", "claim_type", "claim_amount_usd", "root_cause"])}
-    pos = {}
-    for name, (x, y, cols) in boxes.items():
-        fact = name.startswith("fact")
-        col = BLUE if name == "fact_shipments" else (ORANGE if fact else "#6b6a66")
-        ax.add_patch(FancyBboxPatch((x, y), 2.5, 1.7, boxstyle="round,pad=0.02", fc="white", ec=col, lw=2))
-        ax.add_patch(FancyBboxPatch((x, y + 1.3), 2.5, .4, boxstyle="round,pad=0.02", fc=col, ec=col))
-        ax.text(x + 1.25, y + 1.5, name, ha="center", va="center", color="white", fontweight="bold", fontsize=10)
-        for i, c in enumerate(cols):
-            ax.text(x + .12, y + 1.12 - i * .24, c, fontsize=8, color=INK, va="center")
-        pos[name] = (x, y)
-    def arrow(a, b, xa, ya, xb, yb):
-        ax.annotate("", xy=(xb, yb), xytext=(xa, ya), arrowprops=dict(arrowstyle="->", color=SOFT, lw=1.5))
-    arrow(0, 0, 2.8, 4.3, 4.3, 3.2); arrow(0, 0, 2.8, 1.1, 4.3, 2.3)
-    arrow(0, 0, 8.2, 4.3, 6.8, 3.2); arrow(0, 0, 8.2, 1.1, 6.8, 2.3)
-    ax.text(5.6, 5.4, "One row per shipment: invoices and claims are summed to shipment level before joining",
-            ha="center", fontsize=10, color=SOFT)
-    ax.set_title("Relationship table: how the five tables connect", pad=18)
-    save(fig, "star_schema")
-```
 
 ---
 
 ## 8. Exploratory Data Analysis
 
-Five things stood out. (For the charts and numbers below I merged spelling variants such as `AIR`, `air` and `Air Freight` into one mode, so each mode reads as one bar.)
+Five things stood out. (For the numbers below I merged spelling variants such as `AIR`, `air` and `Air Freight` into one mode, so each mode reads as one bar.)
 
 - **Contract SLA is the story for late deliveries.** Shipments on a 2-day SLA were late 45% of the time and on a 3-day SLA 30%. At 5 days or more it drops to 2.7% or less.
 - **Rail is the least reliable mode** (16.7% late) and air the most reliable (9.6%).
@@ -967,41 +811,16 @@ Five things stood out. (For the charts and numbers below I merged spelling varia
 ### Charts
 
 <p align="center">
-  <img src="images/eda_01_portfolio_overview.png" alt="Portfolio at a glance" width="100%">
+  <img src="images/eda_01_metric_distributions.png" alt="Distributions of the key shipment metrics" width="100%">
 </p>
-<p align="center"><em>Portfolio at a glance</em></p>
+<p align="center"><em>Distributions of the key shipment metrics</em></p>
 
 <p align="center">
   <img src="images/eda_02_delivery_outcomes.png" alt="Delivery outcomes and late rate by mode" width="100%">
 </p>
 <p align="center"><em>Delivery outcomes and late rate by mode</em></p>
 
-<p align="center">
-  <img src="images/eda_03_cost_and_weight.png" alt="Cost per kg by mode and weight spread" width="100%">
-</p>
-<p align="center"><em>Cost per kg by mode and weight spread</em></p>
-
-<p align="center">
-  <img src="images/eda_04_shipments_over_time.png" alt="Volume and late rate over time" width="100%">
-</p>
-<p align="center"><em>Volume and late rate over time</em></p>
-
-<p align="center">
-  <img src="images/eda_05_sla_and_carriers.png" alt="Late rate by contract SLA and by carrier" width="100%">
-</p>
-<p align="center"><em>Late rate by contract SLA and by carrier</em></p>
-
-<p align="center">
-  <img src="images/eda_06_invoices_and_margin.png" alt="Invoice status and margin by mode" width="100%">
-</p>
-<p align="center"><em>Invoice status and margin by mode</em></p>
-
-<p align="center">
-  <img src="images/eda_07_claims.png" alt="Claims by type and root cause" width="100%">
-</p>
-<p align="center"><em>Claims by type and root cause</em></p>
-
-### Code: exploratory data analysis (tables)
+### Code: exploratory data analysis
 
 ```python
 import pandas as pd
@@ -1167,95 +986,22 @@ if "late_flag" in df.columns:
     plt.tight_layout()
     plt.show()
 ```
-### Code: charts
+
+### Code: late rate by mode and by contract SLA
 
 ```python
-def chart_eda(rt, claims):
-    rt = rt.copy(); rt["mode"] = clean_mode(rt["transport_mode"])
-    # 1 overview tiles
-    fig, ax = plt.subplots(figsize=(11, 3)); ax.axis("off")
-    known = rt["late_flag"].dropna().astype(float)
-    tiles = [("Shipments", f"{len(rt):,}"), ("Freight cost", f"${rt['total_freight_cost'].astype(float).sum()/1e6:.2f}M"),
-             ("Billed", f"${rt['total_billed_amount_usd'].astype(float).sum()/1e6:.2f}M"),
-             ("Late (known outcomes)", f"{known.mean():.1%}"), ("Shipments with a claim", f"{(rt['claim_count'].astype(float)>0).mean():.1%}"),
-             ("Carriers / customers", "14 / 60")]
-    for i, (lab, val) in enumerate(tiles):
-        x = i / len(tiles)
-        ax.add_patch(FancyBboxPatch((x + .008, .1), .152, .8, boxstyle="round,pad=0.005", fc="#f4f3ef", ec="none", transform=ax.transAxes))
-        ax.text(x + .084, .6, val, ha="center", fontsize=17, fontweight="bold", color=BLUE, transform=ax.transAxes)
-        ax.text(x + .084, .27, lab, ha="center", fontsize=7.5, color=SOFT, transform=ax.transAxes)
-    ax.set_title("Portfolio at a glance (cleaned data)", pad=6)
-    save(fig, "eda_01_portfolio_overview")
-    # 2 delivery outcome + late by mode
-    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
-    o = rt["delivery_outcome"].fillna("Unknown").value_counts()
-    axs[0].bar(o.index, o.values, color=[BLUE, ORANGE, GREY][:len(o)])
-    for i, v in enumerate(o.values): axs[0].text(i, v + 20, f"{v:,}", ha="center", fontsize=9)
-    axs[0].set_title("Delivery outcomes")
-    lm = late_rate(rt, "mode")["mean"].sort_values(ascending=False) * 100
-    axs[1].barh(lm.index[::-1], lm.values[::-1], color=ORANGE, height=.55)
-    for i, v in enumerate(lm.values[::-1]): axs[1].text(v + .3, i, f"{v:.1f}%", va="center", fontsize=9)
-    axs[1].set_title("Late-delivery rate by transport mode"); axs[1].set_xlim(0, lm.max() * 1.25)
-    save(fig, "eda_02_delivery_outcomes")
-    # 3 cost per kg and weight
-    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
-    cpk = rt.groupby("mode")["cost_per_kg"].apply(lambda s: s.astype(float).median()).sort_values()
-    axs[0].barh(cpk.index, cpk.values, color=BLUE, height=.55)
-    for i, v in enumerate(cpk.values): axs[0].text(v + .05, i, f"${v:.2f}", va="center", fontsize=9)
-    axs[0].set_title("Median freight cost per kg by mode"); axs[0].set_xlim(0, cpk.max() * 1.2)
-    w = rt["weight_kg"].astype(float); w = w[w > 0]
-    axs[1].hist(np.log10(w), bins=40, color=BLUE)
-    axs[1].set_title("Shipment weight (log scale, kg)")
-    axs[1].set_xticks([0, 1, 2, 3, 4, 5]); axs[1].set_xticklabels(["1", "10", "100", "1k", "10k", "100k"])
-    axs[1].text(.98, .92, f"Max {w.max():,.0f} kg", transform=axs[1].transAxes, ha="right", fontsize=9, color=ORANGE)
-    save(fig, "eda_03_cost_and_weight")
-    # 4 over time
-    t = rt.copy(); t["month"] = t["ship_date"].dt.to_period("M").dt.to_timestamp()
-    m = t.groupby("month").size(); m = m[m >= 30]; lr = late_rate(t, "month"); lr = lr[lr.index.isin(m.index)]["mean"] * 100
-    fig, ax = plt.subplots(figsize=(11, 4))
-    ax.bar(m.index, m.values, width=20, color=GREY, label="Shipments per month")
-    ax2 = ax.twinx(); ax2.spines["right"].set_visible(True); ax2.plot(lr.index, lr.values, color=ORANGE, lw=2, marker="o", ms=3, label="Late rate (%)")
-    ax.set_title("Shipments per month and late rate (months with 30+ shipments)"); ax.set_ylabel("Shipments"); ax2.set_ylabel("Late rate (%)")
-    save(fig, "eda_04_shipments_over_time")
-    # 5 SLA and carriers
-    fig, axs = plt.subplots(1, 2, figsize=(11, 4.4))
-    s = rt.copy(); s["sla"] = s["contract_sla_days"].astype(float)
-    ls = late_rate(s.dropna(subset=["sla"]), "sla"); ls = ls[ls["count"] >= 20]
-    axs[0].bar(ls.index.astype(int).astype(str), ls["mean"] * 100, color=ORANGE)
-    axs[0].set_title("Late rate by contract SLA (days)"); axs[0].set_xlabel("SLA days"); axs[0].set_ylabel("% late")
-    c = rt.copy(); c["carrier"] = c["carrier_name"].astype("string").str.strip().str.title()
-    lc = late_rate(c.dropna(subset=["carrier"]), "carrier"); lc = lc[lc["count"] >= 50]["mean"].sort_values() * 100
-    axs[1].barh(lc.index, lc.values, color=BLUE, height=.6)
-    for i, v in enumerate(lc.values): axs[1].text(v + .2, i, f"{v:.1f}%", va="center", fontsize=8)
-    axs[1].set_title("Late rate by carrier"); axs[1].set_xlim(0, lc.max() * 1.2)
-    save(fig, "eda_05_sla_and_carriers")
-    # 6 cash
-    inv = rt.copy()
-    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
-    pay = pd.Series({"Paid": (inv["paid_invoice_count"].astype(float) > 0).sum(),
-                     "Overdue": (inv["overdue_invoice_count"].astype(float) > 0).sum(),
-                     "Disputed": (inv["disputed_invoice_count"].astype(float) > 0).sum(),
-                     "Pending": (inv["pending_invoice_count"].astype(float) > 0).sum(),
-                     "No invoice": (inv["invoice_count"].astype(float).fillna(0) == 0).sum()})
-    axs[0].bar(pay.index, pay.values, color=[BLUE, ORANGE, ORANGE, GREY, "#b43c2a"])
-    for i, v in enumerate(pay.values): axs[0].text(i, v + 15, f"{v:,}", ha="center", fontsize=9)
-    axs[0].set_title("Shipments by invoice status")
-    mg = inv.assign(margin=inv["total_billed_amount_usd"].astype(float) - inv["total_freight_cost"].astype(float)).dropna(subset=["margin"])
-    mm = mg.groupby("mode")["margin"].mean().sort_values()
-    axs[1].barh(mm.index, mm.values, color=BLUE, height=.55)
-    for i, v in enumerate(mm.values): axs[1].text(v + 1, i, f"${v:,.0f}", va="center", fontsize=9)
-    axs[1].set_title("Average margin proxy per shipment (billed minus freight)")
-    save(fig, "eda_06_invoices_and_margin")
-    # 7 claims
-    cl = claims.copy()
-    cl["type"] = cl["claim_type"].astype("string").str.strip().str.lower().str.title()
-    cl["cause"] = cl["root_cause"].astype("string").str.strip().str.title().fillna("Unknown")
-    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
-    a = cl.groupby("type")["claim_amount_usd"].sum().sort_values()
-    axs[0].barh(a.index, a.values, color=ORANGE, height=.6); axs[0].set_title("Claim amount by type (USD)")
-    b = cl.groupby("cause")["claim_amount_usd"].sum().sort_values()
-    axs[1].barh(b.index, b.values, color=BLUE, height=.6); axs[1].set_title("Claim amount by root cause (USD)")
-    save(fig, "eda_07_claims")
+# Spelling variants (AIR, air, Air Freight) are merged here so each mode reads as one group
+def clean_mode(s):
+    s = s.astype("string").str.strip().str.lower()
+    return s.replace({"air freight": "Air", "air": "Air", "sea": "Sea", "road": "Road", "rail": "Rail"})
+
+known = relationship_table[relationship_table["late_flag"].notna()].copy()
+known["late_flag"] = known["late_flag"].astype(float)
+known["mode"] = clean_mode(known["transport_mode"])
+
+late_by_mode = known.groupby("mode")["late_flag"].agg(["mean", "count"])
+late_by_sla = known.groupby(known["contract_sla_days"].astype(float))["late_flag"].agg(["mean", "count"])
+cost_per_kg_by_mode = relationship_table.assign(mode=clean_mode(relationship_table["transport_mode"]))     .groupby("mode")["cost_per_kg"].apply(lambda s: s.astype(float).median())
 ```
 
 ---
@@ -1519,13 +1265,6 @@ Text columns (customer tier, industry, countries, carrier, transport mode) becom
 | Claim risk | 7 | 172 | 189 |
 | Anomaly review | 3 | 113 | 123 |
 
-### Charts
-
-<p align="center">
-  <img src="images/encode_01_columns.png" alt="Columns before and after encoding" width="100%">
-</p>
-<p align="center"><em>Columns before and after encoding</em></p>
-
 ### Code: encode categorical columns
 
 ```python
@@ -1602,19 +1341,6 @@ display(pd.DataFrame(encoding_summary).set_index("objective"))
 
 print("\nENCODED TABLE SAMPLE: LATE DELIVERY")
 display(encoded_base_tables["late_delivery"].head())
-```
-### Code: charts
-
-```python
-def chart_encoding():
-    names = ["Late delivery", "Freight cost", "Payment risk", "Claim risk", "Anomaly review"]
-    before, after = [17, 15, 12, 17, 10], [189, 187, 40, 189, 123]
-    fig, ax = plt.subplots(figsize=(9, 3.8)); x = np.arange(5)
-    ax.bar(x - .2, before, .4, color=GREY, label="Before encoding"); ax.bar(x + .2, after, .4, color=BLUE, label="After encoding")
-    for i, v in enumerate(after): ax.text(i + .2, v + 3, str(v), ha="center", fontsize=9)
-    ax.set_xticks(x); ax.set_xticklabels(names); ax.legend(frameon=False)
-    ax.set_title("Columns before and after one-hot encoding")
-    save(fig, "encode_01_columns")
 ```
 
 ---
@@ -1742,13 +1468,6 @@ The split is **chronological**: the earliest 80% of rows train the model and the
 | Claim risk | `ship_date` | 2026-03-14 | 1,980 | 496 |
 | Payment risk | `invoice_date` | 2026-03-20 | 1,504 | 378 |
 
-### Charts
-
-<p align="center">
-  <img src="images/split_01_train_test_timeline.png" alt="Train and test periods" width="100%">
-</p>
-<p align="center"><em>Train and test periods</em></p>
-
 ### Code: train test split
 
 ```python
@@ -1845,25 +1564,6 @@ print(
     f"No train/test split applied. "
     f"{len(X_unsupervised):,} rows retained for unsupervised review."
 )
-```
-### Code: charts
-
-```python
-def chart_split(metadata_tables, date_for_objective, y_train, y_test):
-    names = {"late_delivery": "Late delivery", "freight_cost": "Freight cost", "payment_risk": "Payment risk", "claim_risk": "Claim risk"}
-    fig, axs = plt.subplots(len(names), 1, figsize=(10, 6.4), sharex=True)
-    for ax, (k, nm) in zip(axs, names.items()):
-        d = pd.to_datetime(metadata_tables[k][date_for_objective[k]])
-        tr, te = d.loc[y_train[k].index], d.loc[y_test[k].index]
-        for s, col, lab in ((tr, BLUE, "Train (earliest 80%)"), (te, ORANGE, "Test (latest 20%)")):
-            m = s.dt.to_period("M").dt.to_timestamp().value_counts().sort_index()
-            ax.bar(m.index, m.values, width=20, color=col, label=lab)
-        ax.set_ylabel(nm, rotation=0, ha="right", va="center", fontsize=9)
-        ax.axvline(te.min(), color=INK, lw=1, ls="--")
-    h, l = axs[0].get_legend_handles_labels()
-    fig.legend(h, l, frameon=False, ncol=2, loc="upper right", bbox_to_anchor=(.98, .99))
-    fig.suptitle("Chronological split: the model never sees the future", x=.01, ha="left", fontweight="bold", fontsize=11)
-    save(fig, "split_01_train_test_timeline")
 ```
 
 ---
@@ -3058,6 +2758,44 @@ print("\nFeature-to-flag comparison stored in `anomaly_feature_comparison`.")
 ### Code: charts
 
 ```python
+# ======================================================================
+# CHARTS FOR THE README - every chart below is drawn from the notebook's tables
+# Run after the notebook: it needs relationship_table, cleaned_tables, scaled_X_test,
+# y_test, models_by_objective, date_for_objective and anomaly_results in memory.
+# ======================================================================
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
+from sklearn.metrics import (roc_curve, roc_auc_score, precision_recall_curve,
+                             average_precision_score, confusion_matrix, mean_absolute_error)
+
+BLUE, ORANGE, INK, SOFT, GRID, GREY = "#2a78d6", "#eb6834", "#0b0b0b", "#52514e", "#e4e3df", "#c9c7c1"
+OUT = "charts_out"
+plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
+                     "axes.edgecolor": "#999", "axes.labelcolor": SOFT, "xtick.color": SOFT,
+                     "ytick.color": SOFT, "axes.titleweight": "bold", "axes.titlesize": 11,
+                     "axes.titlelocation": "left", "figure.facecolor": "white"})
+
+
+def save(fig, name):
+    fig.savefig(f"{OUT}/{name}.png", dpi=110, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+def clean_mode(s):
+    """For charts only: merge the spelling variants (AIR, air, Air Freight) into one mode."""
+    s = s.astype("string").str.strip().str.lower()
+    return s.replace({"air freight": "Air", "air": "Air", "sea": "Sea", "road": "Road", "rail": "Rail"})
+
+
+def late_rate(frame, by):
+    known = frame[frame["late_flag"].notna()].copy()
+    known["late_flag"] = known["late_flag"].astype(float)
+    return known.groupby(by)["late_flag"].agg(["mean", "count"])
+
+
+
 PREFIXES = ['customer_tier_', 'industry_', 'hq_country_', 'carrier_name_', 'origin_country_', 'destination_country_', 'transport_mode_']
 
 
@@ -3121,58 +2859,6 @@ def chart_features_anomaly(X_anomaly, flagged_if):
 | 5. Anomaly review | Flag rate only | Isolation Forest (default) | 0 flags at default threshold. One-Class SVM flags 5.6%, LOF 0.4% |
 
 **How to read these.** Objectives 1 and 2 have real signal. Objectives 3 and 4 do not: with ROC AUC at 0.5 the models cannot separate late payers or claim shipments from the rest, and the high recall of logistic regression there comes from flagging many cases, not from skill. The anomaly detectors have no answer key, so only flag rates are shown, not accuracy.
-
-### Charts
-
-<p align="center">
-  <img src="images/compare_obj1_late_delivery.png" alt="Objective 1: four candidate models" width="100%">
-</p>
-<p align="center"><em>Objective 1: four candidate models</em></p>
-
-<p align="center">
-  <img src="images/compare_obj2_freight_cost.png" alt="Objective 2: four candidate models" width="100%">
-</p>
-<p align="center"><em>Objective 2: four candidate models</em></p>
-
-<p align="center">
-  <img src="images/compare_obj3_payment_risk.png" alt="Objective 3: four candidate models" width="100%">
-</p>
-<p align="center"><em>Objective 3: four candidate models</em></p>
-
-<p align="center">
-  <img src="images/compare_obj4_claim_risk.png" alt="Objective 4: four candidate models" width="100%">
-</p>
-<p align="center"><em>Objective 4: four candidate models</em></p>
-
-<p align="center">
-  <img src="images/compare_obj5_anomaly_flags.png" alt="Objective 5: share flagged by each detector" width="100%">
-</p>
-<p align="center"><em>Objective 5: share flagged by each detector</em></p>
-
-<p align="center">
-  <img src="images/obj1_evaluation.png" alt="Objective 1: late delivery, evaluation on unseen shipments" width="100%">
-</p>
-<p align="center"><em>Objective 1: late delivery, evaluation on unseen shipments</em></p>
-
-<p align="center">
-  <img src="images/obj2_evaluation.png" alt="Objective 2: freight cost, evaluation on unseen shipments" width="100%">
-</p>
-<p align="center"><em>Objective 2: freight cost, evaluation on unseen shipments</em></p>
-
-<p align="center">
-  <img src="images/obj3_evaluation.png" alt="Objective 3: payment risk, evaluation on unseen invoices" width="100%">
-</p>
-<p align="center"><em>Objective 3: payment risk, evaluation on unseen invoices</em></p>
-
-<p align="center">
-  <img src="images/obj4_evaluation.png" alt="Objective 4: claim risk, evaluation on unseen shipments" width="100%">
-</p>
-<p align="center"><em>Objective 4: claim risk, evaluation on unseen shipments</em></p>
-
-<p align="center">
-  <img src="images/obj5_evaluation.png" alt="Objective 5: anomaly review" width="100%">
-</p>
-<p align="center"><em>Objective 5: anomaly review</em></p>
 
 ### Code: evaluate model
 
@@ -3572,245 +3258,6 @@ print(
 )
 ```
 
-### Code: model comparison charts (all five objectives)
-
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Objective definitions from the project workbook.
-ml_objectives = pd.DataFrame([
-    {
-        "Objective": 1,
-        "Business question": "Which shipments are likely to be delivered late?",
-        "ML task": "Classification",
-        "Target": "late_flag",
-        "Primary metrics": "F1, ROC-AUC",
-    },
-    {
-        "Objective": 2,
-        "Business question": "What will freight cost before booking?",
-        "ML task": "Regression",
-        "Target": "total_freight_cost",
-        "Primary metrics": "MAE, RMSE, R-squared",
-    },
-    {
-        "Objective": 3,
-        "Business question": "Which invoices may become overdue or disputed?",
-        "ML task": "Classification",
-        "Target": "payment_late",
-        "Primary metrics": "Recall, ROC-AUC",
-    },
-    {
-        "Objective": 4,
-        "Business question": "Which shipments are likely to lead to a claim?",
-        "ML task": "Imbalanced classification",
-        "Target": "has_claim",
-        "Primary metrics": "Precision-recall AUC",
-    },
-    {
-        "Objective": 5,
-        "Business question": "Which shipments or bills are anomalous?",
-        "ML task": "Unsupervised anomaly detection",
-        "Target": "None",
-        "Primary metrics": "Review flagged cases",
-    },
-])
-
-print("MACHINE LEARNING OBJECTIVES")
-display(ml_objectives.set_index("Objective"))
-
-# Gather evaluation results already produced in the notebook.
-objective_results = {
-    1: globals().get("evaluation_results"),
-    2: globals().get("freight_cost_evaluation"),
-    3: globals().get("payment_risk_evaluation"),
-    4: globals().get("claim_risk_evaluation"),
-}
-
-required_results = {
-    1: ["f1", "roc_auc"],
-    2: ["MAE_USD", "RMSE_USD", "R_squared"],
-    3: ["recall", "roc_auc"],
-    4: ["precision", "recall", "f1", "pr_auc"],
-}
-
-missing_results = [
-    objective for objective, result in objective_results.items()
-    if result is None
-]
-if missing_results:
-    raise NameError(
-        f"Evaluation results are missing for objectives {missing_results}. "
-        "Run their evaluation cells first."
-    )
-
-# Chart 1: Late-delivery model comparison.
-late = objective_results[1]
-fig, ax = plt.subplots(figsize=(9, 5))
-late[["f1", "roc_auc"]].plot(kind="bar", ax=ax, color=["#E76F51", "#457B9D"])
-ax.set_title("Objective 1 — Late-delivery classifier comparison")
-ax.set_ylabel("Test metric")
-ax.set_xlabel("")
-ax.set_ylim(0, 1)
-ax.legend(title="Metric")
-ax.tick_params(axis="x", rotation=20)
-ax.grid(axis="y", alpha=0.25)
-plt.tight_layout()
-plt.show()
-
-# Chart 2: Freight-cost model comparison; separate panels because units differ.
-freight = objective_results[2]
-fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-freight["MAE_USD"].plot(kind="bar", ax=axes[0], color="#2A9D8F")
-axes[0].set_title("MAE (lower is better)")
-axes[0].set_ylabel("USD")
-freight["RMSE_USD"].plot(kind="bar", ax=axes[1], color="#F4A261")
-axes[1].set_title("RMSE (lower is better)")
-axes[1].set_ylabel("USD")
-freight["R_squared"].plot(kind="bar", ax=axes[2], color="#457B9D")
-axes[2].set_title("R-squared (higher is better)")
-axes[2].set_ylabel("R-squared")
-for ax in axes:
-    ax.set_xlabel("")
-    ax.tick_params(axis="x", rotation=25)
-    ax.grid(axis="y", alpha=0.25)
-fig.suptitle("Objective 2 — Freight-cost regressor comparison",
-             fontsize=14, fontweight="bold")
-plt.tight_layout()
-plt.show()
-
-# Chart 3: Payment-risk classification.
-payment = objective_results[3]
-fig, ax = plt.subplots(figsize=(9, 5))
-payment[["recall", "roc_auc"]].plot(
-    kind="bar", ax=ax, color=["#E76F51", "#457B9D"]
-)
-ax.set_title("Objective 3 — Payment-risk classifier comparison")
-ax.set_ylabel("Test metric")
-ax.set_xlabel("")
-ax.set_ylim(0, 1)
-ax.legend(title="Metric")
-ax.tick_params(axis="x", rotation=20)
-ax.grid(axis="y", alpha=0.25)
-plt.tight_layout()
-plt.show()
-
-# Chart 4: Claim-risk model comparison.
-claim = objective_results[4]
-fig, ax = plt.subplots(figsize=(10, 5))
-claim[["precision", "recall", "f1", "pr_auc"]].plot(
-    kind="bar", ax=ax,
-    color=["#457B9D", "#E76F51", "#2A9D8F", "#9B5DE5"]
-)
-ax.set_title("Objective 4 — Claim-risk classifier comparison")
-ax.set_ylabel("Test metric")
-ax.set_xlabel("")
-ax.set_ylim(0, 1)
-ax.legend(title="Metric")
-ax.tick_params(axis="x", rotation=20)
-ax.grid(axis="y", alpha=0.25)
-plt.tight_layout()
-plt.show()
-
-# Chart 5: Unsupervised anomaly detector flag rates.
-if "anomaly_results" not in globals():
-    raise NameError("Run the objective 5 anomaly scoring cell first.")
-
-flag_columns = [
-    col for col in anomaly_results.columns
-    if col.endswith("_flag")
-]
-if not flag_columns:
-    raise ValueError("No anomaly flag columns found in anomaly_results.")
-
-anomaly_rates = (
-    anomaly_results[flag_columns]
-    .eq(-1)
-    .mean()
-    .mul(100)
-    .rename(lambda col: col.replace("_flag", "").replace("_", " ").title())
-    .sort_values()
-)
-
-fig, ax = plt.subplots(figsize=(9, 5))
-anomaly_rates.plot(kind="barh", ax=ax, color="#6A4C93")
-ax.set_title("Objective 5 — Records flagged by each anomaly detector")
-ax.set_xlabel("Flagged records (%)")
-ax.set_ylabel("")
-ax.grid(axis="x", alpha=0.25)
-plt.tight_layout()
-plt.show()
-
-print(
-    "The first four charts compare held-out test metrics. "
-    "The anomaly chart compares flag rates only; without confirmed anomaly "
-    "labels, it does not measure detector accuracy."
-)
-```
-### Code: charts
-
-```python
-def chart_eval_classifier(obj, fname, title, models, X, y, default):
-    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
-    cols = {"Logistic Regression": BLUE, "Random Forest": ORANGE, "Extra Trees": "#2a9d8f", "Gradient Boosting": "#7b4fc4"}
-    for n, m in models.items():
-        p = m.predict_proba(X)[:, list(m.classes_).index(1)]
-        f, t, _ = roc_curve(y, p); axs[0].plot(f, t, color=cols[n], lw=2.2 if n == default else 1.2, label=f"{n} ({roc_auc_score(y, p):.2f})")
-    axs[0].plot([0, 1], [0, 1], "--", color="#999"); axs[0].set_title("ROC curves (unseen data)")
-    axs[0].set_xlabel("False positive rate"); axs[0].set_ylabel("True positive rate"); axs[0].legend(frameon=False, fontsize=8, loc="lower right")
-    m = models[default]; p = m.predict_proba(X)[:, list(m.classes_).index(1)]
-    pr, rc, _ = precision_recall_curve(y, p)
-    axs[1].plot(rc, pr, color=BLUE, lw=2); axs[1].axhline(np.mean(y), color=ORANGE, ls="--", label=f"Base rate {np.mean(y):.1%}")
-    axs[1].set_title(f"Precision-recall: {default}"); axs[1].set_xlabel("Recall"); axs[1].set_ylabel("Precision")
-    axs[1].set_ylim(0, 1.02); axs[1].legend(frameon=False)
-    cm = confusion_matrix(y, (p >= .5).astype(int))
-    axs[2].imshow(cm, cmap="Blues"); axs[2].spines[:].set_visible(False)
-    for (i, j), v in np.ndenumerate(cm):
-        axs[2].text(j, i, f"{v}", ha="center", va="center", fontsize=14, color="white" if v > cm.max() / 2 else INK)
-    axs[2].set_xticks([0, 1]); axs[2].set_xticklabels(["Predicted no", "Predicted yes"]); axs[2].set_yticks([0, 1]); axs[2].set_yticklabels(["Actual no", "Actual yes"])
-    axs[2].set_title("Confusion matrix (cut-off 0.5)")
-    fig.suptitle(title, x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
-    save(fig, fname)
-
-
-def chart_eval_regressor(models, X, y, rt, default, fname):
-    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
-    p = models[default].predict(X)
-    axs[0].scatter(y, p, s=9, color=BLUE, alpha=.5, edgecolor="none"); lim = [5, 15000]
-    axs[0].plot(lim, lim, "--", color="#999"); axs[0].set_xscale("log"); axs[0].set_yscale("log"); axs[0].set_xlim(lim); axs[0].set_ylim(lim)
-    axs[0].set_title(f"Predicted vs actual: {default}"); axs[0].set_xlabel("Actual (USD)"); axs[0].set_ylabel("Predicted (USD)")
-    mae = pd.Series({n: mean_absolute_error(y, m.predict(X)) for n, m in models.items()}).sort_values(ascending=False)
-    axs[1].barh([n.replace(" Regressor", "").replace(" Regression", "") for n in mae.index], mae.values, color=[GREY if n != default else BLUE for n in mae.index], height=.55)
-    for i, v in enumerate(mae.values): axs[1].text(v + 8, i, f"${v:,.0f}", va="center", fontsize=9)
-    axs[1].set_title("Average error by model (lower is better)"); axs[1].set_xlim(0, mae.max() * 1.2)
-    err = pd.Series(np.abs(y.values - p), index=y.index)
-    band = pd.qcut(y, 4, labels=["Cheapest 25%", "25-50%", "50-75%", "Costliest 25%"])
-    e = err.groupby(band, observed=True).mean()
-    axs[2].bar(e.index.astype(str), e.values, color=ORANGE); axs[2].set_title("Average error by shipment cost size (USD)")
-    axs[2].tick_params(axis="x", labelsize=8)
-    fig.subplots_adjust(wspace=.55)
-    fig.suptitle("Objective 2: Freight cost, evaluation on unseen shipments", x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
-    save(fig, fname)
-
-
-def chart_eval_anomaly(anomaly_results, rt, flag_rate_summary):
-    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
-    names = {"isolation_forest": "Isolation Forest", "local_outlier_factor": "Local Outlier Factor", "one_class_svm": "One-Class SVM"}
-    rates = pd.Series({v: float(flag_rate_summary.loc[k, "flagged_percent"]) for k, v in names.items()})
-    axs[0].barh(rates.index[::-1], rates.values[::-1], color=BLUE, height=.55)
-    for i, v in enumerate(rates.values[::-1]): axs[0].text(v + .1, i, f"{v:.2f}%", va="center", fontsize=9)
-    axs[0].set_title("Share flagged at each detector's default"); axs[0].set_xlim(0, max(rates.max() * 1.3, 1))
-    sc = anomaly_results["isolation_forest_score"].astype(float)
-    cut = sc.quantile(.95)
-    axs[1].hist(sc, bins=50, color=GREY); axs[1].axvline(cut, color=ORANGE, lw=2, label="Top 5% cut-off used in the app")
-    axs[1].set_title("Isolation Forest scores (higher = more unusual)"); axs[1].legend(frameon=False, fontsize=8)
-    m = anomaly_results.merge(rt[["shipment_id", "transport_mode"]].drop_duplicates("shipment_id"), on="shipment_id", how="left")
-    m["mode"] = clean_mode(m["transport_mode"]); top = m[m["isolation_forest_score"] > cut]["mode"].value_counts()
-    axs[2].bar(top.index.astype(str), top.values, color=ORANGE); axs[2].set_title("Top 5% unusual shipments by mode")
-    fig.suptitle("Objective 5: Anomaly review (no answer key, so we show flag rates, not accuracy)", x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
-    save(fig, "obj5_evaluation")
-```
 
 ---
 
