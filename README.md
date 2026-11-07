@@ -813,12 +813,12 @@ Five things stood out. (For the numbers below I merged spelling variants such as
 ### Charts
 
 <p align="center">
-  <img src="images/eda_01_metric_distributions.png" alt="Distributions of the key shipment metrics" width="100%">
+  <img width="1528" height="1015" alt="eda_01_metric_distributions" src="https://github.com/user-attachments/assets/a537070b-d4ba-4872-8138-3339c0801069" />
 </p>
 <p align="center"><em>Distributions of the key shipment metrics</em></p>
 
 <p align="center">
-  <img src="images/eda_02_delivery_outcomes.png" alt="Delivery outcomes and late rate by mode" width="100%">
+  <img width="758" height="429" alt="eda_02_delivery_outcomes" src="https://github.com/user-attachments/assets/2b31eb76-a81c-4ca4-a91e-3f998d3d50f7" />
 </p>
 <p align="center"><em>Delivery outcomes and late rate by mode</em></p>
 
@@ -2417,27 +2417,27 @@ The driver charts use a simple test: shuffle one input at a time (all its dummy 
 ### Charts
 
 <p align="center">
-  <img src="images/obj1_features.png" alt="Objective 1: what drives late deliveries" width="100%">
+  <img width="941" height="456" alt="obj1_features" src="https://github.com/user-attachments/assets/55918489-e7a3-4593-b1e3-90a431aa5732" />
 </p>
 <p align="center"><em>Objective 1: what drives late deliveries</em></p>
 
 <p align="center">
-  <img src="images/obj2_features.png" alt="Objective 2: what drives freight cost" width="100%">
+  <img width="985" height="456" alt="obj2_features" src="https://github.com/user-attachments/assets/111d9b5a-83a1-4e87-8ecc-fe924f2ab893" />
 </p>
 <p align="center"><em>Objective 2: what drives freight cost</em></p>
 
 <p align="center">
-  <img src="images/obj3_features.png" alt="Objective 3: what the payment-risk model uses (near chance)" width="100%">
+  <img width="948" height="475" alt="obj3_features" src="https://github.com/user-attachments/assets/2061624c-264b-4fbc-bd77-6fc7ab536d09" />
 </p>
 <p align="center"><em>Objective 3: what the payment-risk model uses (near chance)</em></p>
 
 <p align="center">
-  <img src="images/obj4_features.png" alt="Objective 4: what the claim-risk model uses (near chance)" width="100%">
+  <img width="985" height="475" alt="obj4_features" src="https://github.com/user-attachments/assets/b403da32-aa81-4839-b9c1-e3a2bf81a752" />
 </p>
 <p align="center"><em>Objective 4: what the claim-risk model uses (near chance)</em></p>
 
 <p align="center">
-  <img src="images/obj5_features.png" alt="Objective 5: what makes a shipment look unusual" width="100%">
+  <img width="972" height="406" alt="obj5_features" src="https://github.com/user-attachments/assets/f715f145-fe62-42f6-a986-89a71cad6544" />
 </p>
 <p align="center"><em>Objective 5: what makes a shipment look unusual</em></p>
 
@@ -2878,27 +2878,27 @@ def chart_features_anomaly(X_anomaly, flagged_if):
 ### Charts
 
 <p align="center">
-  <img src="images/obj1_evaluation.png" alt="Objective 1: late delivery, evaluation on unseen shipments" width="100%">
+  <img width="982" height="542" alt="eval_obj1_late_delivery" src="https://github.com/user-attachments/assets/012bc79e-a7d4-4aa2-aeb9-0c84676a9054" />
 </p>
 <p align="center"><em>Objective 1: late delivery, evaluation on unseen shipments</em></p>
 
 <p align="center">
-  <img src="images/obj2_evaluation.png" alt="Objective 2: freight cost, evaluation on unseen shipments" width="100%">
+  <img width="1747" height="546" alt="eval_obj2_freight_cost" src="https://github.com/user-attachments/assets/18d50bfc-2c60-4a40-86fe-84558b13c8a0" />
 </p>
 <p align="center"><em>Objective 2: freight cost, evaluation on unseen shipments</em></p>
 
 <p align="center">
-  <img src="images/obj3_evaluation.png" alt="Objective 3: payment risk, evaluation on unseen invoices" width="100%">
+  <img width="982" height="542" alt="eval_obj3_payment_risk" src="https://github.com/user-attachments/assets/e0777a3f-6457-4c54-931b-95098c372d45" />
 </p>
 <p align="center"><em>Objective 3: payment risk, evaluation on unseen invoices</em></p>
 
 <p align="center">
-  <img src="images/obj4_evaluation.png" alt="Objective 4: claim risk, evaluation on unseen shipments" width="100%">
+  <img width="1092" height="542" alt="eval_obj4_claim_risk" src="https://github.com/user-attachments/assets/67f51c4e-0272-4dab-a223-be6ffdb74912" />
 </p>
 <p align="center"><em>Objective 4: claim risk, evaluation on unseen shipments</em></p>
 
 <p align="center">
-  <img src="images/obj5_evaluation.png" alt="Objective 5: anomaly review" width="100%">
+  <img width="982" height="542" alt="eval_obj5_anomaly_flags" src="https://github.com/user-attachments/assets/a2966f9d-6b3e-4e78-a411-2da54bc77169" />
 </p>
 <p align="center"><em>Objective 5: anomaly review</em></p>
 
@@ -3384,32 +3384,32 @@ Mode, carrier and claim-type figures merge spelling variants (for example `AIR`,
 ### Charts
 
 <p align="center">
-  <img src="images/business_01_freight_margin.png" alt="Freight cost and margin" width="100%">
+  <img width="1532" height="546" alt="business_01_freight_margin" src="https://github.com/user-attachments/assets/8af46740-510d-4afb-8f97-97bab8720284" />
 </p>
 <p align="center"><em>Freight cost and margin</em></p>
 
 <p align="center">
-  <img src="images/business_02_on_time_delivery.png" alt="On-time delivery and SLA" width="100%">
+  <img width="1972" height="653" alt="business_02_on_time_delivery" src="https://github.com/user-attachments/assets/a6480ea9-96a3-4207-ab87-50d3bf6b1b70" />
 </p>
 <p align="center"><em>On-time delivery and SLA</em></p>
 
 <p align="center">
-  <img src="images/business_03_invoices_cash.png" alt="Invoices and cash collection" width="100%">
+  <img width="1532" height="546" alt="business_03_invoices_cash" src="https://github.com/user-attachments/assets/b0b7b605-cf29-4b96-805a-bb9389cc7572" />
 </p>
 <p align="center"><em>Invoices and cash collection</em></p>
 
 <p align="center">
-  <img src="images/business_04_carrier_scorecard.png" alt="Carrier scorecard: cost versus reliability" width="100%">
+  <img width="1088" height="653" alt="business_04_carrier_scorecard" src="https://github.com/user-attachments/assets/b0559c65-66c6-478d-b894-7fa0dccf6140" />
 </p>
 <p align="center"><em>Carrier scorecard: cost versus reliability</em></p>
 
 <p align="center">
-  <img src="images/business_05_claim_types.png" alt="Claims by type" width="100%">
+  <img width="1532" height="546" alt="business_05_claim_types" src="https://github.com/user-attachments/assets/d7883586-52b8-492d-968e-2bc16a257c33" />
 </p>
 <p align="center"><em>Claims by type</em></p>
 
 <p align="center">
-  <img src="images/business_06_claim_root_causes.png" alt="Claims by root cause" width="100%">
+  <img width="981" height="542" alt="business_06_claim_root_causes" src="https://github.com/user-attachments/assets/1ac662ac-9c58-46fd-8b0f-5c098749b35b" />
 </p>
 <p align="center"><em>Claims by root cause</em></p>
 
