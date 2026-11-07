@@ -1574,40 +1574,17 @@ print(
 
 A `StandardScaler` is fitted on the **training rows only** and applied to the continuous columns (4 or 5 per model). The 0/1 dummy columns are left alone. Fitting on training data only prevents test information leaking into the scaler. The scaler is saved and reused by the app.
 
-**Which columns were scaled, per objective**
+| Objective | Features | Scaled numeric | Left as 0 or 1 | Gaps filled (train / test) |
+|---|---|---|---|---|
+| 1. Late delivery | 184 | 5 | 179 | 108 / 23 |
+| 2. Freight cost | 183 | 4 | 179 | 106 / 25 |
+| 3. Payment risk | 35 | 4 | 31 | 27 / 12 |
+| 4. Claim risk | 184 | 5 | 179 | 117 / 28 |
+| 5. Anomaly review | 121 | 0 | 121 | not applicable |
 
-| Objective | Train rows | Test rows | Predictors | Scaled (continuous) | Left as 0/1 | Scaled columns |
-|---|---|---|---|---|---|---|
-| 1. Late delivery | 1,781 | 446 | 184 | 5 | 179 | `contract_sla_days`, `credit_limit_usd`, `contract_rate_per_kg_usd`, `weight_kg`, `ship_month` |
-| 2. Freight cost | 1,980 | 496 | 183 | 4 | 179 | `contract_sla_days`, `contract_rate_per_kg_usd`, `weight_kg`, `ship_month` |
-| 3. Payment risk | 1,504 | 378 | 35 | 4 | 31 | `billed_amount_usd`, `credit_limit_usd`, `total_freight_cost`, `margin_usd` |
-| 4. Claim risk | 1,980 | 496 | 184 | 5 | 179 | `contract_sla_days`, `credit_limit_usd`, `contract_rate_per_kg_usd`, `weight_kg`, `ship_month` |
-| 5. Anomaly review | 2,500 | no split | 121 | none saved | all | Isolation Forest needs no scaling. LOF and One-Class SVM scale inside their own pipeline |
+**Scaled numeric columns:** late delivery and claim risk use `contract_sla_days`, `credit_limit_usd`, `contract_rate_per_kg_usd`, `weight_kg` and `ship_month`. Freight cost uses the same list without `credit_limit_usd`. Payment risk uses `billed_amount_usd`, `credit_limit_usd`, `total_freight_cost` and `margin_usd`.
 
-**What the scaler learned and how the columns look afterwards**
-
-| Objective | Scaled column | Train mean | Train std | After scaling: train mean / std | After scaling: test mean / std |
-|---|---|---|---|---|---|
-| 1. Late delivery | `contract_sla_days` | 5.55 | 2.59 | 0.00 / 1.00 | 0.10 / 1.02 |
-|  | `credit_limit_usd` | 217,680.41 | 108,132.62 | 0.00 / 1.00 | 0.04 / 0.98 |
-|  | `contract_rate_per_kg_usd` | 3.48 | 1.53 | 0.00 / 1.00 | -0.02 / 0.98 |
-|  | `weight_kg` | 1,081.02 | 17,461.05 | 0.00 / 1.00 | 0.05 / 1.67 |
-|  | `ship_month` | 5.71 | 3.64 | 0.00 / 1.00 | -0.28 / 0.33 |
-| 2. Freight cost | `contract_sla_days` | 5.56 | 2.57 | 0.00 / 1.00 | 0.11 / 1.02 |
-|  | `contract_rate_per_kg_usd` | 3.48 | 1.53 | 0.00 / 1.00 | -0.02 / 0.97 |
-|  | `weight_kg` | 1,262.47 | 18,649.55 | 0.00 / 1.00 | 0.07 / 1.70 |
-|  | `ship_month` | 5.72 | 3.65 | 0.00 / 1.00 | -0.29 / 0.34 |
-| 3. Payment risk | `billed_amount_usd` | 848.12 | 1,337.30 | 0.00 / 1.00 | 0.03 / 1.15 |
-|  | `credit_limit_usd` | 214,943.66 | 108,201.92 | 0.00 / 1.00 | 0.01 / 0.98 |
-|  | `total_freight_cost` | 690.65 | 1,085.51 | 0.00 / 1.00 | 0.02 / 1.14 |
-|  | `margin_usd` | 159.79 | 309.52 | 0.00 / 1.00 | 0.01 / 1.13 |
-| 4. Claim risk | `contract_sla_days` | 5.56 | 2.57 | 0.00 / 1.00 | 0.11 / 1.02 |
-|  | `credit_limit_usd` | 216,983.75 | 108,582.86 | 0.00 / 1.00 | 0.05 / 0.97 |
-|  | `contract_rate_per_kg_usd` | 3.48 | 1.53 | 0.00 / 1.00 | -0.02 / 0.97 |
-|  | `weight_kg` | 1,262.47 | 18,649.55 | 0.00 / 1.00 | 0.07 / 1.70 |
-|  | `ship_month` | 5.72 | 3.65 | 0.00 / 1.00 | -0.29 / 0.34 |
-
-How to read it: the scaler stores each column's mean and standard deviation from the training rows only. After scaling, the training columns sit at mean 0 and standard deviation 1 by construction. The test columns land near that but not exactly, and that is correct, because the test set is a later period the scaler never saw. Two things stand out: `ship_month` has a test standard deviation of only about 0.3 because the test shipments cover just a few calendar months, and `weight_kg` has a test standard deviation of about 1.7 because of the extreme weights (up to 595,000 kg).
+**Gaps filled** are missing values in the scaled columns, filled with the training median inside each model pipeline. Anomaly review is not scaled up front: Local Outlier Factor and One-Class SVM scale inside their own pipeline, and Isolation Forest needs no scaling.
 
 
 ### Code: feature scaling
