@@ -3924,12 +3924,6 @@ The saved files power [`app.py`](app.py), a single file with seven pages:
 
 Each page has a model selector, defaulting to the model that led in section 17. The payment and claim pages carry a warning banner because those models score near chance.
 
-**Run it yourself**
-
-```bash
-pip install -r requirements.txt
-streamlit run app.py
-```
 
 Live app: [Open the Streamlit app](https://trans-globe-logistics-business-operation-prediction-system-9yr.streamlit.app/)
 
@@ -4418,7 +4412,7 @@ The margin proxy is about 11% of billed revenue, so small changes in freight cos
 ### Charts
 
 <p align="center">
-  <img src="images/impact_baseline.png" alt="Observed impact baseline" width="100%">
+  <img width="1530" height="977" alt="impact_baseline" src="https://github.com/user-attachments/assets/5858da18-6683-4ba8-8515-2c56941a7c31" />
 </p>
 <p align="center"><em>Observed impact baseline</em></p>
 
