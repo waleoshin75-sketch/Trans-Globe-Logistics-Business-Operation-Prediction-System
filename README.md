@@ -4,7 +4,7 @@
 
 **Python | pandas | scikit-learn | Streamlit** | An Intelligent Multi-Model System for Optimizing Freight Costs, Delivery Timelines, and Operational Risks
 
-[Live Streamlit App](YOUR-STREAMLIT-LINK) | [GitHub Repository](YOUR-GITHUB-LINK)
+[Live Streamlit App](https://trans-globe-logistics-business-operation-prediction-system-9yr.streamlit.app/) | [GitHub Repository](https://github.com/waleoshin75-sketch/Trans-Globe-Logistics-Business-Operation-Prediction-System)
 
 ---
 
@@ -88,7 +88,7 @@ A fifth model type, **unsupervised anomaly detection** (Isolation Forest, Local 
 ├── requirements.txt
 ├── images/                         every chart shown in this README
 ├── TransGlobe_Logistics_Consolidated.xlsx   the raw workbook (5 data sheets + plan sheets)
-├── model_artifacts_joblib/         19 files: models, scaler, features and bundle for each objective
+├── model/                          the saved models, scalers and feature lists (compressed to fit GitHub)
 └── notebook                        all the code shown below
 ```
 
@@ -5340,6 +5340,8 @@ Artifact folder: /tmp/claude-0/-home-claude/d4834066-0350-5509-8034-a5a343a62845
 
 The 19 files are zipped into `model_artifacts_download.zip` for download.
 
+**Deployment note:** the freight-cost model file was about 140 MB, over GitHub's 100 MB limit. For the repo I re-saved each `_models.joblib` with `joblib.dump(..., compress=3)` (same models, about a quarter of the size) and left out the four `_bundle` files, which the app does not use.
+
 ### Full code and output
 
 **Cell 42 – Zip the artifacts**
@@ -5429,7 +5431,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Live app: [Open the Streamlit app](YOUR-STREAMLIT-LINK)
+Live app: [Open the Streamlit app](https://trans-globe-logistics-business-operation-prediction-system-9yr.streamlit.app/)
 
 ### Full code: app.py
 
