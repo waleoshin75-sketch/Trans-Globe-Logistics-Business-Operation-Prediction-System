@@ -4,6 +4,8 @@
 
 **Python | pandas | scikit-learn | Streamlit** | An Intelligent Multi-Model System for Optimizing Freight Costs, Delivery Timelines, and Operational Risks
 
+**Author:** Adewale Oshinukan | Data Scientist | [GitHub](https://github.com/waleoshin75-sketch) | [Live App](https://trans-globe-logistics-business-operation-prediction-system-9yr.streamlit.app/)
+
 [Live Streamlit App](https://trans-globe-logistics-business-operation-prediction-system-9yr.streamlit.app/) | [GitHub Repository](https://github.com/waleoshin75-sketch/Trans-Globe-Logistics-Business-Operation-Prediction-System)
 
 ---
@@ -1572,6 +1574,42 @@ print(
 
 A `StandardScaler` is fitted on the **training rows only** and applied to the continuous columns (4 or 5 per model). The 0/1 dummy columns are left alone. Fitting on training data only prevents test information leaking into the scaler. The scaler is saved and reused by the app.
 
+**Which columns were scaled, per objective**
+
+| Objective | Train rows | Test rows | Predictors | Scaled (continuous) | Left as 0/1 | Scaled columns |
+|---|---|---|---|---|---|---|
+| 1. Late delivery | 1,781 | 446 | 184 | 5 | 179 | `contract_sla_days`, `credit_limit_usd`, `contract_rate_per_kg_usd`, `weight_kg`, `ship_month` |
+| 2. Freight cost | 1,980 | 496 | 183 | 4 | 179 | `contract_sla_days`, `contract_rate_per_kg_usd`, `weight_kg`, `ship_month` |
+| 3. Payment risk | 1,504 | 378 | 35 | 4 | 31 | `billed_amount_usd`, `credit_limit_usd`, `total_freight_cost`, `margin_usd` |
+| 4. Claim risk | 1,980 | 496 | 184 | 5 | 179 | `contract_sla_days`, `credit_limit_usd`, `contract_rate_per_kg_usd`, `weight_kg`, `ship_month` |
+| 5. Anomaly review | 2,500 | no split | 121 | none saved | all | Isolation Forest needs no scaling. LOF and One-Class SVM scale inside their own pipeline |
+
+**What the scaler learned and how the columns look afterwards**
+
+| Objective | Scaled column | Train mean | Train std | After scaling: train mean / std | After scaling: test mean / std |
+|---|---|---|---|---|---|
+| 1. Late delivery | `contract_sla_days` | 5.55 | 2.59 | 0.00 / 1.00 | 0.10 / 1.02 |
+|  | `credit_limit_usd` | 217,680.41 | 108,132.62 | 0.00 / 1.00 | 0.04 / 0.98 |
+|  | `contract_rate_per_kg_usd` | 3.48 | 1.53 | 0.00 / 1.00 | -0.02 / 0.98 |
+|  | `weight_kg` | 1,081.02 | 17,461.05 | 0.00 / 1.00 | 0.05 / 1.67 |
+|  | `ship_month` | 5.71 | 3.64 | 0.00 / 1.00 | -0.28 / 0.33 |
+| 2. Freight cost | `contract_sla_days` | 5.56 | 2.57 | 0.00 / 1.00 | 0.11 / 1.02 |
+|  | `contract_rate_per_kg_usd` | 3.48 | 1.53 | 0.00 / 1.00 | -0.02 / 0.97 |
+|  | `weight_kg` | 1,262.47 | 18,649.55 | 0.00 / 1.00 | 0.07 / 1.70 |
+|  | `ship_month` | 5.72 | 3.65 | 0.00 / 1.00 | -0.29 / 0.34 |
+| 3. Payment risk | `billed_amount_usd` | 848.12 | 1,337.30 | 0.00 / 1.00 | 0.03 / 1.15 |
+|  | `credit_limit_usd` | 214,943.66 | 108,201.92 | 0.00 / 1.00 | 0.01 / 0.98 |
+|  | `total_freight_cost` | 690.65 | 1,085.51 | 0.00 / 1.00 | 0.02 / 1.14 |
+|  | `margin_usd` | 159.79 | 309.52 | 0.00 / 1.00 | 0.01 / 1.13 |
+| 4. Claim risk | `contract_sla_days` | 5.56 | 2.57 | 0.00 / 1.00 | 0.11 / 1.02 |
+|  | `credit_limit_usd` | 216,983.75 | 108,582.86 | 0.00 / 1.00 | 0.05 / 0.97 |
+|  | `contract_rate_per_kg_usd` | 3.48 | 1.53 | 0.00 / 1.00 | -0.02 / 0.97 |
+|  | `weight_kg` | 1,262.47 | 18,649.55 | 0.00 / 1.00 | 0.07 / 1.70 |
+|  | `ship_month` | 5.72 | 3.65 | 0.00 / 1.00 | -0.29 / 0.34 |
+
+How to read it: the scaler stores each column's mean and standard deviation from the training rows only. After scaling, the training columns sit at mean 0 and standard deviation 1 by construction. The test columns land near that but not exactly, and that is correct, because the test set is a later period the scaler never saw. Two things stand out: `ship_month` has a test standard deviation of only about 0.3 because the test shipments cover just a few calendar months, and `weight_kg` has a test standard deviation of about 1.7 because of the extreme weights (up to 595,000 kg).
+
+
 ### Code: feature scaling
 
 ```python
@@ -2860,6 +2898,58 @@ def chart_features_anomaly(X_anomaly, flagged_if):
 
 **How to read these.** Objectives 1 and 2 have real signal. Objectives 3 and 4 do not: with ROC AUC at 0.5 the models cannot separate late payers or claim shipments from the rest, and the high recall of logistic regression there comes from flagging many cases, not from skill. The anomaly detectors have no answer key, so only flag rates are shown, not accuracy.
 
+### Charts
+
+<p align="center">
+  <img src="images/compare_obj1_late_delivery.png" alt="Objective 1: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 1: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj2_freight_cost.png" alt="Objective 2: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 2: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj3_payment_risk.png" alt="Objective 3: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 3: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj4_claim_risk.png" alt="Objective 4: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 4: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj5_anomaly_flags.png" alt="Objective 5: share flagged by each detector" width="100%">
+</p>
+<p align="center"><em>Objective 5: share flagged by each detector</em></p>
+
+<p align="center">
+  <img src="images/obj1_evaluation.png" alt="Objective 1: late delivery, evaluation on unseen shipments" width="100%">
+</p>
+<p align="center"><em>Objective 1: late delivery, evaluation on unseen shipments</em></p>
+
+<p align="center">
+  <img src="images/obj2_evaluation.png" alt="Objective 2: freight cost, evaluation on unseen shipments" width="100%">
+</p>
+<p align="center"><em>Objective 2: freight cost, evaluation on unseen shipments</em></p>
+
+<p align="center">
+  <img src="images/obj3_evaluation.png" alt="Objective 3: payment risk, evaluation on unseen invoices" width="100%">
+</p>
+<p align="center"><em>Objective 3: payment risk, evaluation on unseen invoices</em></p>
+
+<p align="center">
+  <img src="images/obj4_evaluation.png" alt="Objective 4: claim risk, evaluation on unseen shipments" width="100%">
+</p>
+<p align="center"><em>Objective 4: claim risk, evaluation on unseen shipments</em></p>
+
+<p align="center">
+  <img src="images/obj5_evaluation.png" alt="Objective 5: anomaly review" width="100%">
+</p>
+<p align="center"><em>Objective 5: anomaly review</em></p>
+
 ### Code: evaluate model
 
 #### Objective 1: Raise on-time delivery and SLA adherence
@@ -3258,6 +3348,245 @@ print(
 )
 ```
 
+### Code: model comparison charts
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Objective definitions from the project workbook.
+ml_objectives = pd.DataFrame([
+    {
+        "Objective": 1,
+        "Business question": "Which shipments are likely to be delivered late?",
+        "ML task": "Classification",
+        "Target": "late_flag",
+        "Primary metrics": "F1, ROC-AUC",
+    },
+    {
+        "Objective": 2,
+        "Business question": "What will freight cost before booking?",
+        "ML task": "Regression",
+        "Target": "total_freight_cost",
+        "Primary metrics": "MAE, RMSE, R-squared",
+    },
+    {
+        "Objective": 3,
+        "Business question": "Which invoices may become overdue or disputed?",
+        "ML task": "Classification",
+        "Target": "payment_late",
+        "Primary metrics": "Recall, ROC-AUC",
+    },
+    {
+        "Objective": 4,
+        "Business question": "Which shipments are likely to lead to a claim?",
+        "ML task": "Imbalanced classification",
+        "Target": "has_claim",
+        "Primary metrics": "Precision-recall AUC",
+    },
+    {
+        "Objective": 5,
+        "Business question": "Which shipments or bills are anomalous?",
+        "ML task": "Unsupervised anomaly detection",
+        "Target": "None",
+        "Primary metrics": "Review flagged cases",
+    },
+])
+
+print("MACHINE LEARNING OBJECTIVES")
+display(ml_objectives.set_index("Objective"))
+
+# Gather evaluation results already produced in the notebook.
+objective_results = {
+    1: globals().get("evaluation_results"),
+    2: globals().get("freight_cost_evaluation"),
+    3: globals().get("payment_risk_evaluation"),
+    4: globals().get("claim_risk_evaluation"),
+}
+
+required_results = {
+    1: ["f1", "roc_auc"],
+    2: ["MAE_USD", "RMSE_USD", "R_squared"],
+    3: ["recall", "roc_auc"],
+    4: ["precision", "recall", "f1", "pr_auc"],
+}
+
+missing_results = [
+    objective for objective, result in objective_results.items()
+    if result is None
+]
+if missing_results:
+    raise NameError(
+        f"Evaluation results are missing for objectives {missing_results}. "
+        "Run their evaluation cells first."
+    )
+
+# Chart 1: Late-delivery model comparison.
+late = objective_results[1]
+fig, ax = plt.subplots(figsize=(9, 5))
+late[["f1", "roc_auc"]].plot(kind="bar", ax=ax, color=["#E76F51", "#457B9D"])
+ax.set_title("Objective 1 — Late-delivery classifier comparison")
+ax.set_ylabel("Test metric")
+ax.set_xlabel("")
+ax.set_ylim(0, 1)
+ax.legend(title="Metric")
+ax.tick_params(axis="x", rotation=20)
+ax.grid(axis="y", alpha=0.25)
+plt.tight_layout()
+plt.show()
+
+# Chart 2: Freight-cost model comparison; separate panels because units differ.
+freight = objective_results[2]
+fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+freight["MAE_USD"].plot(kind="bar", ax=axes[0], color="#2A9D8F")
+axes[0].set_title("MAE (lower is better)")
+axes[0].set_ylabel("USD")
+freight["RMSE_USD"].plot(kind="bar", ax=axes[1], color="#F4A261")
+axes[1].set_title("RMSE (lower is better)")
+axes[1].set_ylabel("USD")
+freight["R_squared"].plot(kind="bar", ax=axes[2], color="#457B9D")
+axes[2].set_title("R-squared (higher is better)")
+axes[2].set_ylabel("R-squared")
+for ax in axes:
+    ax.set_xlabel("")
+    ax.tick_params(axis="x", rotation=25)
+    ax.grid(axis="y", alpha=0.25)
+fig.suptitle("Objective 2 — Freight-cost regressor comparison",
+             fontsize=14, fontweight="bold")
+plt.tight_layout()
+plt.show()
+
+# Chart 3: Payment-risk classification.
+payment = objective_results[3]
+fig, ax = plt.subplots(figsize=(9, 5))
+payment[["recall", "roc_auc"]].plot(
+    kind="bar", ax=ax, color=["#E76F51", "#457B9D"]
+)
+ax.set_title("Objective 3 — Payment-risk classifier comparison")
+ax.set_ylabel("Test metric")
+ax.set_xlabel("")
+ax.set_ylim(0, 1)
+ax.legend(title="Metric")
+ax.tick_params(axis="x", rotation=20)
+ax.grid(axis="y", alpha=0.25)
+plt.tight_layout()
+plt.show()
+
+# Chart 4: Claim-risk model comparison.
+claim = objective_results[4]
+fig, ax = plt.subplots(figsize=(10, 5))
+claim[["precision", "recall", "f1", "pr_auc"]].plot(
+    kind="bar", ax=ax,
+    color=["#457B9D", "#E76F51", "#2A9D8F", "#9B5DE5"]
+)
+ax.set_title("Objective 4 — Claim-risk classifier comparison")
+ax.set_ylabel("Test metric")
+ax.set_xlabel("")
+ax.set_ylim(0, 1)
+ax.legend(title="Metric")
+ax.tick_params(axis="x", rotation=20)
+ax.grid(axis="y", alpha=0.25)
+plt.tight_layout()
+plt.show()
+
+# Chart 5: Unsupervised anomaly detector flag rates.
+if "anomaly_results" not in globals():
+    raise NameError("Run the objective 5 anomaly scoring cell first.")
+
+flag_columns = [
+    col for col in anomaly_results.columns
+    if col.endswith("_flag")
+]
+if not flag_columns:
+    raise ValueError("No anomaly flag columns found in anomaly_results.")
+
+anomaly_rates = (
+    anomaly_results[flag_columns]
+    .eq(-1)
+    .mean()
+    .mul(100)
+    .rename(lambda col: col.replace("_flag", "").replace("_", " ").title())
+    .sort_values()
+)
+
+fig, ax = plt.subplots(figsize=(9, 5))
+anomaly_rates.plot(kind="barh", ax=ax, color="#6A4C93")
+ax.set_title("Objective 5 — Records flagged by each anomaly detector")
+ax.set_xlabel("Flagged records (%)")
+ax.set_ylabel("")
+ax.grid(axis="x", alpha=0.25)
+plt.tight_layout()
+plt.show()
+
+print(
+    "The first four charts compare held-out test metrics. "
+    "The anomaly chart compares flag rates only; without confirmed anomaly "
+    "labels, it does not measure detector accuracy."
+)
+```
+### Code: charts
+
+```python
+def chart_eval_classifier(obj, fname, title, models, X, y, default):
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
+    cols = {"Logistic Regression": BLUE, "Random Forest": ORANGE, "Extra Trees": "#2a9d8f", "Gradient Boosting": "#7b4fc4"}
+    for n, m in models.items():
+        p = m.predict_proba(X)[:, list(m.classes_).index(1)]
+        f, t, _ = roc_curve(y, p); axs[0].plot(f, t, color=cols[n], lw=2.2 if n == default else 1.2, label=f"{n} ({roc_auc_score(y, p):.2f})")
+    axs[0].plot([0, 1], [0, 1], "--", color="#999"); axs[0].set_title("ROC curves (unseen data)")
+    axs[0].set_xlabel("False positive rate"); axs[0].set_ylabel("True positive rate"); axs[0].legend(frameon=False, fontsize=8, loc="lower right")
+    m = models[default]; p = m.predict_proba(X)[:, list(m.classes_).index(1)]
+    pr, rc, _ = precision_recall_curve(y, p)
+    axs[1].plot(rc, pr, color=BLUE, lw=2); axs[1].axhline(np.mean(y), color=ORANGE, ls="--", label=f"Base rate {np.mean(y):.1%}")
+    axs[1].set_title(f"Precision-recall: {default}"); axs[1].set_xlabel("Recall"); axs[1].set_ylabel("Precision")
+    axs[1].set_ylim(0, 1.02); axs[1].legend(frameon=False)
+    cm = confusion_matrix(y, (p >= .5).astype(int))
+    axs[2].imshow(cm, cmap="Blues"); axs[2].spines[:].set_visible(False)
+    for (i, j), v in np.ndenumerate(cm):
+        axs[2].text(j, i, f"{v}", ha="center", va="center", fontsize=14, color="white" if v > cm.max() / 2 else INK)
+    axs[2].set_xticks([0, 1]); axs[2].set_xticklabels(["Predicted no", "Predicted yes"]); axs[2].set_yticks([0, 1]); axs[2].set_yticklabels(["Actual no", "Actual yes"])
+    axs[2].set_title("Confusion matrix (cut-off 0.5)")
+    fig.suptitle(title, x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
+    save(fig, fname)
+
+
+def chart_eval_regressor(models, X, y, rt, default, fname):
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
+    p = models[default].predict(X)
+    axs[0].scatter(y, p, s=9, color=BLUE, alpha=.5, edgecolor="none"); lim = [5, 15000]
+    axs[0].plot(lim, lim, "--", color="#999"); axs[0].set_xscale("log"); axs[0].set_yscale("log"); axs[0].set_xlim(lim); axs[0].set_ylim(lim)
+    axs[0].set_title(f"Predicted vs actual: {default}"); axs[0].set_xlabel("Actual (USD)"); axs[0].set_ylabel("Predicted (USD)")
+    mae = pd.Series({n: mean_absolute_error(y, m.predict(X)) for n, m in models.items()}).sort_values(ascending=False)
+    axs[1].barh([n.replace(" Regressor", "").replace(" Regression", "") for n in mae.index], mae.values, color=[GREY if n != default else BLUE for n in mae.index], height=.55)
+    for i, v in enumerate(mae.values): axs[1].text(v + 8, i, f"${v:,.0f}", va="center", fontsize=9)
+    axs[1].set_title("Average error by model (lower is better)"); axs[1].set_xlim(0, mae.max() * 1.2)
+    err = pd.Series(np.abs(y.values - p), index=y.index)
+    band = pd.qcut(y, 4, labels=["Cheapest 25%", "25-50%", "50-75%", "Costliest 25%"])
+    e = err.groupby(band, observed=True).mean()
+    axs[2].bar(e.index.astype(str), e.values, color=ORANGE); axs[2].set_title("Average error by shipment cost size (USD)")
+    axs[2].tick_params(axis="x", labelsize=8)
+    fig.subplots_adjust(wspace=.55)
+    fig.suptitle("Objective 2: Freight cost, evaluation on unseen shipments", x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
+    save(fig, fname)
+
+
+def chart_eval_anomaly(anomaly_results, rt, flag_rate_summary):
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
+    names = {"isolation_forest": "Isolation Forest", "local_outlier_factor": "Local Outlier Factor", "one_class_svm": "One-Class SVM"}
+    rates = pd.Series({v: float(flag_rate_summary.loc[k, "flagged_percent"]) for k, v in names.items()})
+    axs[0].barh(rates.index[::-1], rates.values[::-1], color=BLUE, height=.55)
+    for i, v in enumerate(rates.values[::-1]): axs[0].text(v + .1, i, f"{v:.2f}%", va="center", fontsize=9)
+    axs[0].set_title("Share flagged at each detector's default"); axs[0].set_xlim(0, max(rates.max() * 1.3, 1))
+    sc = anomaly_results["isolation_forest_score"].astype(float)
+    cut = sc.quantile(.95)
+    axs[1].hist(sc, bins=50, color=GREY); axs[1].axvline(cut, color=ORANGE, lw=2, label="Top 5% cut-off used in the app")
+    axs[1].set_title("Isolation Forest scores (higher = more unusual)"); axs[1].legend(frameon=False, fontsize=8)
+    m = anomaly_results.merge(rt[["shipment_id", "transport_mode"]].drop_duplicates("shipment_id"), on="shipment_id", how="left")
+    m["mode"] = clean_mode(m["transport_mode"]); top = m[m["isolation_forest_score"] > cut]["mode"].value_counts()
+    axs[2].bar(top.index.astype(str), top.values, color=ORANGE); axs[2].set_title("Top 5% unusual shipments by mode")
+    fig.suptitle("Objective 5: Anomaly review (no answer key, so we show flag rates, not accuracy)", x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
+    save(fig, "obj5_evaluation")
+```
 
 ---
 
