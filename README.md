@@ -108,30 +108,45 @@ Five tables arrive dirty. After cleaning, 76 duplicate rows are gone.
 
 The workbook also holds plan sheets (business objectives, ML objectives, derived columns, leakage rules, cleaning plan, data splitting) that guided the build.
 
-### Full code and output
-
-**Cell 1 – Imports**
+### Code: load the five tables
 
 ```python
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-```
 
-
-**Cell 2 – Workbook name**
-
-```python
+# %%
 # Define the master local Excel spreadsheet file name
 file_path = "TransGlobe_Logistics_Consolidated.xlsx"
-```
 
-
-**Cell 3 – Sheet names**
-
-```python
+# %%
 pd.ExcelFile("TransGlobe_Logistics_Consolidated.xlsx").sheet_names
+
+# %%
+# Load and display Customers dimension data
+df_customers = pd.read_excel(file_path, sheet_name='dim_customers')
+df_customers.head(5)
+
+# %%
+# Load and display Carriers dimension data
+df_carriers = pd.read_excel(file_path, sheet_name='dim_carriers')
+df_carriers.head(5)
+
+# %%
+# Load and display Shipments fact data
+df_shipments = pd.read_excel(file_path, sheet_name='fact_shipments')
+df_shipments.head(5)
+
+# %%
+# Load and display Invoices fact data
+df_invoices = pd.read_excel(file_path, sheet_name='fact_invoices')
+df_invoices.head(5)
+
+# %%
+# Load and display Claims fact data
+df_claims = pd.read_excel(file_path, sheet_name='fact_claims')
+df_claims.head(5)
 ```
 
 **Output**
@@ -140,100 +155,45 @@ pd.ExcelFile("TransGlobe_Logistics_Consolidated.xlsx").sheet_names
 ['Project_Overview', 'Business_Objectives', 'ML_Objectives', 'Data_Dictionary', 'Derived_Columns', 'Leakage_Rules', 'Cleaning_Plan', 'Data_Splitting', 'dim_customers', 'dim_carriers', 'fact_shipments', 'fact_invoices', 'fact_claims']
 ```
 
-
-**Cell 4 – Customers**
-
-```python
-# Load and display Customers dimension data
-df_customers = pd.read_excel(file_path, sheet_name='dim_customers')
-df_customers.head(5)
-```
-
-**Output**
-
-|  | customer_id | company_name | hq_country | industry | customer_tier | contract_sla_days | credit_limit_usd |
-|---|---|---|---|---|---|---|---|
-| 0 | CUS-1000 | Nova Trading Co | india | nan | gold | 5 | $394,000.00 |
-| 1 | CUS-1001 | Pinnacle PLC | Netherlands | Automotive | Silver | 5 | 270000 |
-| 2 | CUS-1002 | SUMMIT LTD | Nigeria | Electronics | Silver | 7d | 397000 |
-| 3 | CUS-1003 | Solace Inc | China | Agriculture | Gold | 2 | 354000 |
-| 4 | CUS-1004 | Solace PLC | france | Automotive | Gold | 10 | 302000 |
-
-
-**Cell 5 – Carriers**
-
-```python
-# Load and display Carriers dimension data
-df_carriers = pd.read_excel(file_path, sheet_name='dim_carriers')
-df_carriers.head(5)
-```
-
-**Output**
-
-|  | carrier_id | carrier_name | primary_mode | base_region | contract_rate_per_kg_usd | fleet_size |
+| customer_id | company_name | hq_country | industry | customer_tier | contract_sla_days | credit_limit_usd |
 |---|---|---|---|---|---|---|
-| 0 | CAR-200 |   SkyBridge Air Cargo  | AIR | AMER | 5.98 | 109 |
-| 1 | CAR-201 | oceanlink shipping | sea | EMEA | 2.34 | 151 |
-| 2 | CAR-202 | RoadRunner Freight | Road | Africa | 3.97 | 22 |
-| 3 | CAR-203 |   RailCore Express  | Rail Freight | APAC | 1.86 | 99999 |
-| 4 | CAR-204 | AeroSwift Cargo | AIR | EMEA | 4.47 | -12 |
+| CUS-1000 | Nova Trading Co | india | nan | gold | 5 | $394,000.00 |
+| CUS-1001 | Pinnacle PLC | Netherlands | Automotive | Silver | 5 | 270000 |
+| CUS-1002 | SUMMIT LTD | Nigeria | Electronics | Silver | 7d | 397000 |
+| CUS-1003 | Solace Inc | China | Agriculture | Gold | 2 | 354000 |
+| CUS-1004 | Solace PLC | france | Automotive | Gold | 10 | 302000 |
 
+| carrier_id | carrier_name | primary_mode | base_region | contract_rate_per_kg_usd | fleet_size |
+|---|---|---|---|---|---|
+| CAR-200 |   SkyBridge Air Cargo  | AIR | AMER | 5.98 | 109 |
+| CAR-201 | oceanlink shipping | sea | EMEA | 2.34 | 151 |
+| CAR-202 | RoadRunner Freight | Road | Africa | 3.97 | 22 |
+| CAR-203 |   RailCore Express  | Rail Freight | APAC | 1.86 | 99999 |
+| CAR-204 | AeroSwift Cargo | AIR | EMEA | 4.47 | -12 |
 
-**Cell 6 – Shipments**
-
-```python
-# Load and display Shipments fact data
-df_shipments = pd.read_excel(file_path, sheet_name='fact_shipments')
-df_shipments.head(5)
-```
-
-**Output**
-
-|  | shipment_id | customer_id | carrier_id | origin_country | … | freight_cost_usd | fuel_surcharge_usd | shipment_status |
-|---|---|---|---|---|---|---|---|---|
-| 0 | SHP-50612 | CUS-1004 | CAR-202 | Germany | … | 347.9 | 42.36 | cancelled |
-| 1 | SHP-50821 | CUS-1044 | CAR-207 | china | … | 108.5 | 5 | delivered |
-| 2 | SHP-51381 | CUS-1035 | CAR-200 | China | … | 5376 | 663.71 | Delivered |
-| 3 | SHP-50964 | CUS-1040 | CAR-212 | south africa | … | 24.82 | 3.21 | Delivered |
-| 4 | SHP-52393 | CUS-1030 | CAR-204 | France | … | 177.6 | 28.35 | Delivered |
-
-
-**Cell 7 – Invoices**
-
-```python
-# Load and display Invoices fact data
-df_invoices = pd.read_excel(file_path, sheet_name='fact_invoices')
-df_invoices.head(5)
-```
-
-**Output**
-
-|  | invoice_id | shipment_id | invoice_date | billed_amount_usd | payment_status | paid_date |
-|---|---|---|---|---|---|---|
-| 0 | INV-700000 | SHP-50547 | 06-07-2025 | 347.1 | Paid | June 23, 2025 |
-| 1 | INV-700001 | SHP-50521 | 12 Feb 2025 | 343.9 | Overdue | nan |
-| 2 | INV-700002 | SHP-52404 | 2025-10-13 | USD 213.02 | Paid | 11-05-2025 |
-| 3 | INV-700003 | SHP-52244 | 2025-07-06 | 560 | Disputed | TBD |
-| 4 | INV-700004 | SHP-51951 | 11 Sep 2025 | 590 | Disputed | TBD |
-
-
-**Cell 8 – Claims**
-
-```python
-# Load and display Claims fact data
-df_claims = pd.read_excel(file_path, sheet_name='fact_claims')
-df_claims.head(5)
-```
-
-**Output**
-
-|  | claim_id | shipment_id | claim_type | claim_amount_usd | claim_status | days_to_resolve | root_cause |
+| shipment_id | customer_id | carrier_id | origin_country | … | freight_cost_usd | fuel_surcharge_usd | shipment_status |
 |---|---|---|---|---|---|---|---|
-| 0 | CLM-3000 | SHP-52181 | Damage   | 967.1 | Settled | nan | Packaging |
-| 1 | CLM-3001 | SHP-51776 | loss | 1176 | Settled | 78 | Customs |
-| 2 | CLM-3002 | SHP-51449 |   Delay Penalty  | 132.3 | Settled | 70 | Carrier Delay |
-| 3 | CLM-3003 | SHP-51943 | Damage | 878 | Under Review | 40 | Carrier Delay |
-| 4 | CLM-3004 | SHP-50534 | Temperature Breach | 956.9 | Settled | 28 | Packaging |
+| SHP-50612 | CUS-1004 | CAR-202 | Germany | … | 347.9 | 42.36 | cancelled |
+| SHP-50821 | CUS-1044 | CAR-207 | china | … | 108.5 | 5 | delivered |
+| SHP-51381 | CUS-1035 | CAR-200 | China | … | 5,376 | 663.71 | Delivered |
+| SHP-50964 | CUS-1040 | CAR-212 | south africa | … | 24.82 | 3.21 | Delivered |
+| SHP-52393 | CUS-1030 | CAR-204 | France | … | 177.6 | 28.35 | Delivered |
+
+| invoice_id | shipment_id | invoice_date | billed_amount_usd | payment_status | paid_date |
+|---|---|---|---|---|---|
+| INV-700000 | SHP-50547 | 06-07-2025 | 347.1 | Paid | June 23, 2025 |
+| INV-700001 | SHP-50521 | 12 Feb 2025 | 343.9 | Overdue | nan |
+| INV-700002 | SHP-52404 | 2025-10-13 | USD 213.02 | Paid | 11-05-2025 |
+| INV-700003 | SHP-52244 | 2025-07-06 | 560 | Disputed | TBD |
+| INV-700004 | SHP-51951 | 11 Sep 2025 | 590 | Disputed | TBD |
+
+| claim_id | shipment_id | claim_type | claim_amount_usd | claim_status | days_to_resolve | root_cause |
+|---|---|---|---|---|---|---|
+| CLM-3000 | SHP-52181 | Damage   | 967.1 | Settled | nan | Packaging |
+| CLM-3001 | SHP-51776 | loss | 1,176 | Settled | 78 | Customs |
+| CLM-3002 | SHP-51449 |   Delay Penalty  | 132.3 | Settled | 70 | Carrier Delay |
+| CLM-3003 | SHP-51943 | Damage | 878 | Under Review | 40 | Carrier Delay |
+| CLM-3004 | SHP-50534 | Temperature Breach | 956.9 | Settled | 28 | Packaging |
 
 
 ---
@@ -310,15 +270,20 @@ The audit changes nothing. It counts every problem first, table by table.
 | Dates | Several formats (`06-07-2025`, `12 Feb 2025`, `2025-10-13`, `June 23, 2025`) and `TBD` |
 | Impossible values | Fleet size of 99999 and -12, negative weights |
 
-### Full code and output
+### Charts
 
-**Cell 9 – Load every table and audit it**
+<p align="center">
+  <img src="images/audit_01_issues_found.png" alt="What the audit found" width="100%">
+</p>
+<p align="center"><em>What the audit found</em></p>
+
+### Code: data quality audit
 
 ```python
 import pandas as pd
 from pathlib import Path
 
-# Workbook path on your Windows computer
+# Workbook path (keep the Excel file next to the notebook)
 file_path = Path(
     "TransGlobe_Logistics_Consolidated.xlsx"
 )
@@ -326,7 +291,7 @@ file_path = Path(
 if not file_path.exists():
     raise FileNotFoundError(
         f"Workbook not found at: {file_path}\n"
-        "Update file_path to the location of your workbook."
+        "Put the workbook next to the notebook."
     )
 
 table_names = [
@@ -459,79 +424,64 @@ None
 
 Fully duplicated rows: 0
 
-ID column: carrier_id
-  Null IDs: 0
-  Duplicate ID rows: 0
-  Distinct non-null IDs: 14
-  Leading/trailing whitespace in carrier_name: 4 values
-================================================================================
-fact_shipments: 2,540 rows × 13 columns
-
-Column types:
-shipment_id                   str
-customer_id                   str
-carrier_id                    str
-origin_country                str
-destination_country           str
-transport_mode                str
-ship_date                     str
-promised_delivery_date        str
-actual_delivery_date          str
-weight_kg                 float64
-freight_cost_usd           object
-fuel_surcharge_usd         object
-shipment_status               str
-
-Missing values:
-carrier_id               18
-actual_delivery_date    157
-weight_kg                30
-
-Fully duplicated rows: 40
-
-ID column: shipment_id
-  Null IDs: 0
-  Duplicate ID rows: 80
-  Distinct non-null IDs: 2,500
-  Leading/trailing whitespace in origin_country: 29 values
-  Leading/trailing whitespace in destination_country: 36 values
-  Leading/trailing whitespace in transport_mode: 501 values
-================================================================================
-fact_invoices: 2,292 rows × 6 columns
-
-Column types:
-invoice_id              str
-shipment_id             str
-invoice_date            str
-billed_amount_usd    object
-payment_status          str
-paid_date               str
-
-Missing values:
-paid_date    631
-
-Fully duplicated rows: 25
-
-ID column: invoice_id
-  Null IDs: 0
-  Duplicate ID rows: 50
-  Distinct non-null IDs: 2,267
-  Leading/trailing whitespace in payment_status: 134 values
-================================================================================
-fact_claims: 238 rows × 7 columns
-
-Column types:
-claim_id                str
-shipment_id             str
-claim_type              str
-claim_amount_usd     object
-claim_status            str
-days_to_resolve     float64
-root_cause              str
-
-... (output shortened)
+... (output shortened here)
 ```
 
+### Code: charts
+
+```python
+# ======================================================================
+# CHARTS FOR THE README - every chart below is drawn from the notebook's tables
+# Run after the notebook: it needs relationship_table, cleaned_tables, scaled_X_test,
+# y_test, models_by_objective, date_for_objective and anomaly_results in memory.
+# ======================================================================
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
+from sklearn.metrics import (roc_curve, roc_auc_score, precision_recall_curve,
+                             average_precision_score, confusion_matrix, mean_absolute_error)
+
+BLUE, ORANGE, INK, SOFT, GRID, GREY = "#2a78d6", "#eb6834", "#0b0b0b", "#52514e", "#e4e3df", "#c9c7c1"
+OUT = "charts_out"
+plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
+                     "axes.edgecolor": "#999", "axes.labelcolor": SOFT, "xtick.color": SOFT,
+                     "ytick.color": SOFT, "axes.titleweight": "bold", "axes.titlesize": 11,
+                     "axes.titlelocation": "left", "figure.facecolor": "white"})
+
+
+def save(fig, name):
+    fig.savefig(f"{OUT}/{name}.png", dpi=110, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+def clean_mode(s):
+    """For charts only: merge the spelling variants (AIR, air, Air Freight) into one mode."""
+    s = s.astype("string").str.strip().str.lower()
+    return s.replace({"air freight": "Air", "air": "Air", "sea": "Sea", "road": "Road", "rail": "Rail"})
+
+
+def late_rate(frame, by):
+    known = frame[frame["late_flag"].notna()].copy()
+    known["late_flag"] = known["late_flag"].astype(float)
+    return known.groupby(by)["late_flag"].agg(["mean", "count"])
+
+
+
+def chart_audit():
+    issues = {"Shipments: missing actual delivery date": 157, "Invoices: missing paid date": 631,
+              "Shipments: customer not in customer table": 126, "Shipments: exact duplicate rows": 40,
+              "Shipments: missing weight": 30, "Invoices: exact duplicate rows": 25,
+              "Shipments: missing carrier": 18, "Claims: exact duplicate rows": 8}
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    s = pd.Series(issues).sort_values()
+    ax.barh(s.index, s.values, color=BLUE, height=.6)
+    for i, v in enumerate(s.values):
+        ax.text(v + 8, i, f"{v:,}", va="center", fontsize=9, color=INK)
+    ax.set_title("What the data quality audit found (row counts)")
+    ax.set_xlim(0, 720); ax.grid(axis="x", color=GRID); ax.set_axisbelow(True)
+    save(fig, "audit_01_issues_found")
+```
 
 ---
 
@@ -549,9 +499,14 @@ Cleaning is applied table by table: strip spaces, parse every date style, turn m
 
 I did not merge spelling variants such as `AIR`, `Air` and `air`. That decision matters later: it is why the encoded tables in section 10 carry 172 dummy columns instead of about 50. Standardising categories first is the first improvement I would make.
 
-### Full code and output
+### Charts
 
-**Cell 10 – Clean all five tables**
+<p align="center">
+  <img src="images/cleaning_01_rows_before_after.png" alt="Rows before and after cleaning" width="100%">
+</p>
+<p align="center"><em>Rows before and after cleaning</em></p>
+
+### Code: data cleaning and error checking
 
 ```python
 import pandas as pd
@@ -645,6 +600,23 @@ display(cleaning_summary)
 | fact_invoices | 2292 | 2267 | 25 | 0 | 859 |
 | fact_claims | 238 | 230 | 8 | 0 | 49 |
 
+### Code: charts
+
+```python
+def chart_cleaning():
+    tables = ["Customers", "Carriers", "Shipments", "Invoices", "Claims"]
+    before, after = [63, 14, 2540, 2292, 238], [60, 14, 2500, 2267, 230]
+    fig, ax = plt.subplots(figsize=(9, 4))
+    x = np.arange(5)
+    ax.bar(x - .2, before, .4, color=GREY, label="Before cleaning")
+    ax.bar(x + .2, after, .4, color=BLUE, label="After cleaning")
+    for i, (b, a) in enumerate(zip(before, after)):
+        ax.text(i + .2, a, f"-{b - a}" if b != a else "0", ha="center", va="bottom", fontsize=9, color=INK)
+    ax.set_xticks(x); ax.set_xticklabels(tables); ax.set_yscale("log")
+    ax.set_title("Rows before and after cleaning (labels show duplicates removed)")
+    ax.legend(frameon=False); ax.grid(axis="y", color=GRID); ax.set_axisbelow(True)
+    save(fig, "cleaning_01_rows_before_after")
+```
 
 ---
 
@@ -659,9 +631,7 @@ New columns were built from the clean tables. Everything that reveals an outcome
 
 The step also lists what to review: 55 shipments with a missing or non-positive weight, 55 with a negative transit time, 190 with an unknown delivery outcome, 368 invoices with a pending or unmapped payment status.
 
-### Full code and output
-
-**Cell 11 – Build the new columns**
+### Code: feature engineering
 
 ```python
 import pandas as pd
@@ -875,13 +845,13 @@ days_to_pay, payment_late
 FEATURE ENGINEERING WARNINGS / REVIEW ITEMS
 ```
 
-|  | table | issue | count | detail |
-|---|---|---|---|---|
-| 0 | fact_shipments | Non-positive or missing weight | 55 | cost_per_kg is missing when weight_kg... |
-| 1 | fact_shipments | Delivery outcome unknown | 190 | Check shipment status and delivery da... |
-| 2 | fact_shipments | Negative transit duration | 55 | Actual delivery date is earlier than ... |
-| 3 | fact_invoices | Payment status not mapped | 368 | Rows with Pending or unrecognized sta... |
-| 4 | fact_invoices | Negative payment duration | 26 | paid_date is earlier than invoice_dat... |
+| table | issue | count | detail |
+|---|---|---|---|
+| fact_shipments | Non-positive or missing weight | 55 | cost_per_kg is missing when wei... |
+| fact_shipments | Delivery outcome unknown | 190 | Check shipment status and deliv... |
+| fact_shipments | Negative transit duration | 55 | Actual delivery date is earlier... |
+| fact_invoices | Payment status not mapped | 368 | Rows with Pending or unrecogniz... |
+| fact_invoices | Negative payment duration | 26 | paid_date is earlier than invoi... |
 
 ```text
 Feature table shapes:
@@ -911,9 +881,14 @@ The five tables are joined into one **shipment-level relationship table** (2,500
 
 All stay in the table, with blanks, rather than being dropped.
 
-### Full code and output
+### Charts
 
-**Cell 12 – Join the tables**
+<p align="center">
+  <img src="images/star_schema.png" alt="How the five tables connect" width="100%">
+</p>
+<p align="center"><em>How the five tables connect</em></p>
+
+### Code: relationship table (star schema)
 
 ```python
 import pandas as pd
@@ -1106,42 +1081,101 @@ Duplicate shipment ID rows: 0
 RELATIONSHIP WARNINGS
 ```
 
-|  | check | count | detail |
-|---|---|---|---|
-| 0 | Shipments without a matching customer | 14 | These shipment rows remain in the rel... |
-| 1 | Shipments without a matching carrier | 18 | These shipment rows remain in the rel... |
-| 2 | Shipments without an invoice | 243 | These shipment rows remain in the rel... |
-| 3 | Shipments without a claim | 2270 | These shipment rows remain in the rel... |
+| check | count | detail |
+|---|---|---|
+| Shipments without a matching cu... | 14 | These shipment rows remain in t... |
+| Shipments without a matching ca... | 18 | These shipment rows remain in t... |
+| Shipments without an invoice | 243 | These shipment rows remain in t... |
+| Shipments without a claim | 2270 | These shipment rows remain in t... |
 
-|  | shipment_id | customer_id | carrier_id | origin_country | … | pending_invoice_count | claim_count | total_claim_amount_usd |
-|---|---|---|---|---|---|---|---|---|
-| 0 | SHP-50612 | CUS-1004 | CAR-202 | Germany | … | 0 | 0 | 0 |
-| 1 | SHP-50821 | CUS-1044 | CAR-207 | china | … | 0 | 0 | 0 |
-| 2 | SHP-51381 | CUS-1035 | CAR-200 | China | … | 0 | 0 | 0 |
-| 3 | SHP-50964 | CUS-1040 | CAR-212 | south africa | … | 0 | 1 | 422.1 |
-| 4 | SHP-52393 | CUS-1030 | CAR-204 | France | … | 0 | 0 | 0 |
+| shipment_id | customer_id | carrier_id | origin_country | … | pending_invoice_count | claim_count | total_claim_amount_usd |
+|---|---|---|---|---|---|---|---|
+| SHP-50612 | CUS-1004 | CAR-202 | Germany | … | 0 | 0 | 0 |
+| SHP-50821 | CUS-1044 | CAR-207 | china | … | 0 | 0 | 0 |
+| SHP-51381 | CUS-1035 | CAR-200 | China | … | 0 | 0 | 0 |
+| SHP-50964 | CUS-1040 | CAR-212 | south africa | … | 0 | 1 | 422.1 |
+| SHP-52393 | CUS-1030 | CAR-204 | France | … | 0 | 0 | 0 |
 
+### Code: charts
+
+```python
+def chart_star_schema():
+    fig, ax = plt.subplots(figsize=(11, 5.6)); ax.axis("off"); ax.set_xlim(0, 11); ax.set_ylim(0, 5.6)
+    boxes = {"dim_customers": (0.3, 3.6, ["customer_id (key)", "company_name", "industry, tier", "contract_sla_days", "credit_limit_usd"]),
+             "dim_carriers": (0.3, 0.3, ["carrier_id (key)", "carrier_name", "primary_mode", "contract_rate_per_kg_usd", "fleet_size"]),
+             "fact_shipments": (4.3, 1.9, ["shipment_id (key)", "customer_id  (FK)", "carrier_id  (FK)", "route, mode, dates", "weight, freight cost"]),
+             "fact_invoices": (8.2, 3.6, ["invoice_id (key)", "shipment_id  (FK)", "billed_amount_usd", "payment_status", "paid_date"]),
+             "fact_claims": (8.2, 0.3, ["claim_id (key)", "shipment_id  (FK)", "claim_type", "claim_amount_usd", "root_cause"])}
+    pos = {}
+    for name, (x, y, cols) in boxes.items():
+        fact = name.startswith("fact")
+        col = BLUE if name == "fact_shipments" else (ORANGE if fact else "#6b6a66")
+        ax.add_patch(FancyBboxPatch((x, y), 2.5, 1.7, boxstyle="round,pad=0.02", fc="white", ec=col, lw=2))
+        ax.add_patch(FancyBboxPatch((x, y + 1.3), 2.5, .4, boxstyle="round,pad=0.02", fc=col, ec=col))
+        ax.text(x + 1.25, y + 1.5, name, ha="center", va="center", color="white", fontweight="bold", fontsize=10)
+        for i, c in enumerate(cols):
+            ax.text(x + .12, y + 1.12 - i * .24, c, fontsize=8, color=INK, va="center")
+        pos[name] = (x, y)
+    def arrow(a, b, xa, ya, xb, yb):
+        ax.annotate("", xy=(xb, yb), xytext=(xa, ya), arrowprops=dict(arrowstyle="->", color=SOFT, lw=1.5))
+    arrow(0, 0, 2.8, 4.3, 4.3, 3.2); arrow(0, 0, 2.8, 1.1, 4.3, 2.3)
+    arrow(0, 0, 8.2, 4.3, 6.8, 3.2); arrow(0, 0, 8.2, 1.1, 6.8, 2.3)
+    ax.text(5.6, 5.4, "One row per shipment: invoices and claims are summed to shipment level before joining",
+            ha="center", fontsize=10, color=SOFT)
+    ax.set_title("Relationship table: how the five tables connect", pad=18)
+    save(fig, "star_schema")
+```
 
 ---
 
 ## 8. Exploratory Data Analysis
 
-Four things stood out:
+Five things stood out. (For the charts and numbers below I merged spelling variants such as `AIR`, `air` and `Air Freight` into one mode, so each mode reads as one bar.)
 
-- **Rail is the least reliable mode.** The upper-case `RAIL` group is late 23% of the time against 8% to 10% for air.
-- **Cost splits into two worlds.** Air costs about $5 per kg. Road, rail and sea sit between $0.80 and $1.60.
-- **Carriers differ more on reliability than on cost.** JetStream Logistics is late 5.3% of the time, RailCore Express 16.9%.
+- **Contract SLA is the story for late deliveries.** Shipments on a 2-day SLA were late 45% of the time and on a 3-day SLA 30%. At 5 days or more it drops to 2.7% or less.
+- **Rail is the least reliable mode** (16.7% late) and air the most reliable (9.6%).
+- **Cost splits into two worlds.** Air runs about $5.22 per kg at the median. Road, rail and sea sit between $0.85 and $1.56.
+- **Carriers differ more on reliability than on price.** JetStream Logistics is late 5.3% of the time, RailCore Express 16.9%.
 - **Weight has absurd outliers** (up to 595,000 kg, and some negatives), which squashes the scaled weight to near zero for almost every shipment.
 
 ### Charts
 
-<p align="center"><img src="images/eda_01_metric_distributions.png" alt="Distributions" width="100%"></p>
+<p align="center">
+  <img src="images/eda_01_portfolio_overview.png" alt="Portfolio at a glance" width="100%">
+</p>
+<p align="center"><em>Portfolio at a glance</em></p>
 
-<p align="center"><img src="images/eda_02_delivery_outcomes.png" alt="Delivery outcomes" width="100%"></p>
+<p align="center">
+  <img src="images/eda_02_delivery_outcomes.png" alt="Delivery outcomes and late rate by mode" width="100%">
+</p>
+<p align="center"><em>Delivery outcomes and late rate by mode</em></p>
 
-### Full code and output
+<p align="center">
+  <img src="images/eda_03_cost_and_weight.png" alt="Cost per kg by mode and weight spread" width="100%">
+</p>
+<p align="center"><em>Cost per kg by mode and weight spread</em></p>
 
-**Cell 13 – EDA tables and charts**
+<p align="center">
+  <img src="images/eda_04_shipments_over_time.png" alt="Volume and late rate over time" width="100%">
+</p>
+<p align="center"><em>Volume and late rate over time</em></p>
+
+<p align="center">
+  <img src="images/eda_05_sla_and_carriers.png" alt="Late rate by contract SLA and by carrier" width="100%">
+</p>
+<p align="center"><em>Late rate by contract SLA and by carrier</em></p>
+
+<p align="center">
+  <img src="images/eda_06_invoices_and_margin.png" alt="Invoice status and margin by mode" width="100%">
+</p>
+<p align="center"><em>Invoice status and margin by mode</em></p>
+
+<p align="center">
+  <img src="images/eda_07_claims.png" alt="Claims by type and root cause" width="100%">
+</p>
+<p align="center"><em>Claims by type and root cause</em></p>
+
+### Code: exploratory data analysis (tables)
 
 ```python
 import pandas as pd
@@ -1314,9 +1348,9 @@ if "late_flag" in df.columns:
 DATASET OVERVIEW
 ```
 
-|  | Rows | Columns | Distinct shipments | Duplicate shipment IDs |
-|---|---|---|---|---|
-| 0 | 2500 | 41 | 2500 | 0 |
+| Rows | Columns | Distinct shipments | Duplicate shipment IDs |
+|---|---|---|---|
+| 2500 | 41 | 2500 | 0 |
 
 ```text
 MISSING VALUES
@@ -1330,11 +1364,7 @@ MISSING VALUES
 | industry | 230 | 9.2 |
 | actual_delivery_date | 227 | 9.08 |
 | contract_sla_days | 85 | 3.4 |
-| cost_per_kg | 55 | 2.2 |
-| weight_kg | 30 | 1.2 |
 | … | … | … |
-| contract_rate_per_kg_usd | 18 | 0.72 |
-| credit_limit_usd | 14 | 0.56 |
 | company_name | 14 | 0.56 |
 | customer_tier | 14 | 0.56 |
 | hq_country | 14 | 0.56 |
@@ -1343,19 +1373,19 @@ MISSING VALUES
 NUMERIC SUMMARY
 ```
 
-| index | count | mean | std | min | 25% | 50% | 75% | max |
-|---|---|---|---|---|---|---|---|---|
-| weight_kg | 2470 | 1504 | 2.178e+04 | -490.9 | 86.8 | 185.6 | 364.8 | 5.95e+05 |
-| total_freight_cost | 2500 | 696.6 | 1103 | 2.98 | 133.8 | 312.9 | 787.3 | 1.106e+04 |
-| cost_per_kg | 2445 | 2.374 | 1.913 | 0.0006549 | 0.9697 | 1.389 | 4.258 | 6.881 |
-| transit_days | 2251 | 8.342 | 33.86 | -320 | 4 | 7 | 14 | 338 |
-| days_late | 2248 | -3.761 | 30.78 | -297 | -6 | -3 | -1 | 319 |
-| contract_sla_days | 2415 | 5.616 | 2.583 | 2 | 3 | 5 | 7 | 10 |
-| credit_limit_usd | 2486 | 2.176e+05 | 1.081e+05 | 2e+04 | 1.29e+05 | 2.21e+05 | 3.03e+05 | 3.97e+05 |
-| invoice_count | 2500 | 0.9028 | 0.2963 | 0 | 1 | 1 | 1 | 1 |
-| total_billed_amount_usd | 2500 | 783.3 | 1360 | 0 | 114 | 312.2 | 836.3 | 1.444e+04 |
-| claim_count | 2500 | 0.092 | 0.2891 | 0 | 0 | 0 | 0 | 1 |
-| total_claim_amount_usd | 2500 | 74.18 | 363.9 | 0 | 0 | 0 | 0 | 6249 |
+| index | count | mean | std | … | 50% | 75% | max |
+|---|---|---|---|---|---|---|---|
+| weight_kg | 2,470 | 1,504 | 2.178e+04 | … | 185.6 | 364.8 | 5.95e+05 |
+| total_freight_cost | 2,500 | 696.6 | 1,103 | … | 312.9 | 787.3 | 1.106e+04 |
+| cost_per_kg | 2,445 | 2.374 | 1.913 | … | 1.389 | 4.258 | 6.881 |
+| transit_days | 2,251 | 8.342 | 33.86 | … | 7 | 14 | 338 |
+| days_late | 2,248 | -3.761 | 30.78 | … | -3 | -1 | 319 |
+| contract_sla_days | 2,415 | 5.616 | 2.583 | … | 5 | 7 | 10 |
+| credit_limit_usd | 2,486 | 2.176e+05 | 1.081e+05 | … | 2.21e+05 | 3.03e+05 | 3.97e+05 |
+| invoice_count | 2,500 | 0.9028 | 0.2963 | … | 1 | 1 | 1 |
+| total_billed_amount_usd | 2,500 | 783.3 | 1,360 | … | 312.2 | 836.3 | 1.444e+04 |
+| claim_count | 2,500 | 0.092 | 0.2891 | … | 0 | 0 | 1 |
+| total_claim_amount_usd | 2,500 | 74.18 | 363.9 | … | 0 | 0 | 6,249 |
 
 ```text
 TRANSPORT_MODE COUNTS
@@ -1369,10 +1399,7 @@ TRANSPORT_MODE COUNTS
 | Rail | 208 |
 | ROAD | 160 |
 | Air Freight | 157 |
-| AIR | 149 |
-| SEA | 149 |
-| air | 144 |
-| road | 144 |
+| … | … |
 | sea | 134 |
 | rail | 82 |
 | RAIL | 72 |
@@ -1389,13 +1416,7 @@ SHIPMENT_STATUS COUNTS
 | In Transit | 114 |
 | DELIVERED | 103 |
 | Returned | 89 |
-| Cancelled | 58 |
-| Delaied | 11 |
-| In Tranist | 10 |
-| in transit | 10 |
-| delayed | 10 |
-| IN TRANSIT | 8 |
-| DELAYED | 7 |
+| … | … |
 | returned | 6 |
 | cancelled | 4 |
 | RETURNED | 3 |
@@ -1426,84 +1447,96 @@ CUSTOMER_TIER COUNTS
 | Platinum | 91 |
 | Missing | 14 |
 
-```text
-PRIMARY_MODE COUNTS
+### Code: charts
+
+```python
+def chart_eda(rt, claims):
+    rt = rt.copy(); rt["mode"] = clean_mode(rt["transport_mode"])
+    # 1 overview tiles
+    fig, ax = plt.subplots(figsize=(11, 3)); ax.axis("off")
+    known = rt["late_flag"].dropna().astype(float)
+    tiles = [("Shipments", f"{len(rt):,}"), ("Freight cost", f"${rt['total_freight_cost'].astype(float).sum()/1e6:.2f}M"),
+             ("Billed", f"${rt['total_billed_amount_usd'].astype(float).sum()/1e6:.2f}M"),
+             ("Late (known outcomes)", f"{known.mean():.1%}"), ("Shipments with a claim", f"{(rt['claim_count'].astype(float)>0).mean():.1%}"),
+             ("Carriers / customers", "14 / 60")]
+    for i, (lab, val) in enumerate(tiles):
+        x = i / len(tiles)
+        ax.add_patch(FancyBboxPatch((x + .008, .1), .152, .8, boxstyle="round,pad=0.005", fc="#f4f3ef", ec="none", transform=ax.transAxes))
+        ax.text(x + .084, .6, val, ha="center", fontsize=17, fontweight="bold", color=BLUE, transform=ax.transAxes)
+        ax.text(x + .084, .27, lab, ha="center", fontsize=7.5, color=SOFT, transform=ax.transAxes)
+    ax.set_title("Portfolio at a glance (cleaned data)", pad=6)
+    save(fig, "eda_01_portfolio_overview")
+    # 2 delivery outcome + late by mode
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
+    o = rt["delivery_outcome"].fillna("Unknown").value_counts()
+    axs[0].bar(o.index, o.values, color=[BLUE, ORANGE, GREY][:len(o)])
+    for i, v in enumerate(o.values): axs[0].text(i, v + 20, f"{v:,}", ha="center", fontsize=9)
+    axs[0].set_title("Delivery outcomes")
+    lm = late_rate(rt, "mode")["mean"].sort_values(ascending=False) * 100
+    axs[1].barh(lm.index[::-1], lm.values[::-1], color=ORANGE, height=.55)
+    for i, v in enumerate(lm.values[::-1]): axs[1].text(v + .3, i, f"{v:.1f}%", va="center", fontsize=9)
+    axs[1].set_title("Late-delivery rate by transport mode"); axs[1].set_xlim(0, lm.max() * 1.25)
+    save(fig, "eda_02_delivery_outcomes")
+    # 3 cost per kg and weight
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
+    cpk = rt.groupby("mode")["cost_per_kg"].apply(lambda s: s.astype(float).median()).sort_values()
+    axs[0].barh(cpk.index, cpk.values, color=BLUE, height=.55)
+    for i, v in enumerate(cpk.values): axs[0].text(v + .05, i, f"${v:.2f}", va="center", fontsize=9)
+    axs[0].set_title("Median freight cost per kg by mode"); axs[0].set_xlim(0, cpk.max() * 1.2)
+    w = rt["weight_kg"].astype(float); w = w[w > 0]
+    axs[1].hist(np.log10(w), bins=40, color=BLUE)
+    axs[1].set_title("Shipment weight (log scale, kg)")
+    axs[1].set_xticks([0, 1, 2, 3, 4, 5]); axs[1].set_xticklabels(["1", "10", "100", "1k", "10k", "100k"])
+    axs[1].text(.98, .92, f"Max {w.max():,.0f} kg", transform=axs[1].transAxes, ha="right", fontsize=9, color=ORANGE)
+    save(fig, "eda_03_cost_and_weight")
+    # 4 over time
+    t = rt.copy(); t["month"] = t["ship_date"].dt.to_period("M").dt.to_timestamp()
+    m = t.groupby("month").size(); m = m[m >= 30]; lr = late_rate(t, "month"); lr = lr[lr.index.isin(m.index)]["mean"] * 100
+    fig, ax = plt.subplots(figsize=(11, 4))
+    ax.bar(m.index, m.values, width=20, color=GREY, label="Shipments per month")
+    ax2 = ax.twinx(); ax2.spines["right"].set_visible(True); ax2.plot(lr.index, lr.values, color=ORANGE, lw=2, marker="o", ms=3, label="Late rate (%)")
+    ax.set_title("Shipments per month and late rate (months with 30+ shipments)"); ax.set_ylabel("Shipments"); ax2.set_ylabel("Late rate (%)")
+    save(fig, "eda_04_shipments_over_time")
+    # 5 SLA and carriers
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4.4))
+    s = rt.copy(); s["sla"] = s["contract_sla_days"].astype(float)
+    ls = late_rate(s.dropna(subset=["sla"]), "sla"); ls = ls[ls["count"] >= 20]
+    axs[0].bar(ls.index.astype(int).astype(str), ls["mean"] * 100, color=ORANGE)
+    axs[0].set_title("Late rate by contract SLA (days)"); axs[0].set_xlabel("SLA days"); axs[0].set_ylabel("% late")
+    c = rt.copy(); c["carrier"] = c["carrier_name"].astype("string").str.strip().str.title()
+    lc = late_rate(c.dropna(subset=["carrier"]), "carrier"); lc = lc[lc["count"] >= 50]["mean"].sort_values() * 100
+    axs[1].barh(lc.index, lc.values, color=BLUE, height=.6)
+    for i, v in enumerate(lc.values): axs[1].text(v + .2, i, f"{v:.1f}%", va="center", fontsize=8)
+    axs[1].set_title("Late rate by carrier"); axs[1].set_xlim(0, lc.max() * 1.2)
+    save(fig, "eda_05_sla_and_carriers")
+    # 6 cash
+    inv = rt.copy()
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
+    pay = pd.Series({"Paid": (inv["paid_invoice_count"].astype(float) > 0).sum(),
+                     "Overdue": (inv["overdue_invoice_count"].astype(float) > 0).sum(),
+                     "Disputed": (inv["disputed_invoice_count"].astype(float) > 0).sum(),
+                     "Pending": (inv["pending_invoice_count"].astype(float) > 0).sum(),
+                     "No invoice": (inv["invoice_count"].astype(float).fillna(0) == 0).sum()})
+    axs[0].bar(pay.index, pay.values, color=[BLUE, ORANGE, ORANGE, GREY, "#b43c2a"])
+    for i, v in enumerate(pay.values): axs[0].text(i, v + 15, f"{v:,}", ha="center", fontsize=9)
+    axs[0].set_title("Shipments by invoice status")
+    mg = inv.assign(margin=inv["total_billed_amount_usd"].astype(float) - inv["total_freight_cost"].astype(float)).dropna(subset=["margin"])
+    mm = mg.groupby("mode")["margin"].mean().sort_values()
+    axs[1].barh(mm.index, mm.values, color=BLUE, height=.55)
+    for i, v in enumerate(mm.values): axs[1].text(v + 1, i, f"${v:,.0f}", va="center", fontsize=9)
+    axs[1].set_title("Average margin proxy per shipment (billed minus freight)")
+    save(fig, "eda_06_invoices_and_margin")
+    # 7 claims
+    cl = claims.copy()
+    cl["type"] = cl["claim_type"].astype("string").str.strip().str.lower().str.title()
+    cl["cause"] = cl["root_cause"].astype("string").str.strip().str.title().fillna("Unknown")
+    fig, axs = plt.subplots(1, 2, figsize=(11, 4))
+    a = cl.groupby("type")["claim_amount_usd"].sum().sort_values()
+    axs[0].barh(a.index, a.values, color=ORANGE, height=.6); axs[0].set_title("Claim amount by type (USD)")
+    b = cl.groupby("cause")["claim_amount_usd"].sum().sort_values()
+    axs[1].barh(b.index, b.values, color=BLUE, height=.6); axs[1].set_title("Claim amount by root cause (USD)")
+    save(fig, "eda_07_claims")
 ```
-
-| primary_mode | count |
-|---|---|
-| AIR | 579 |
-| Sea | 352 |
-| Road | 329 |
-| road | 185 |
-| rail | 184 |
-| Sea Freight | 183 |
-| Rail Freight | 175 |
-| ROAD | 170 |
-| sea | 164 |
-| Air Freight | 161 |
-| Missing | 18 |
-
-```text
-LATE DELIVERY RATE BY TRANSPORT MODE
-```
-
-| transport_mode | shipments | known_outcomes | late_rate |
-|---|---|---|---|
-| RAIL | 72 | 64 | 23.44 |
-| rail | 82 | 74 | 20.27 |
-| sea | 134 | 120 | 15.83 |
-| Road | 385 | 345 | 13.33 |
-| Rail | 208 | 185 | 12.97 |
-| SEA | 149 | 140 | 12.86 |
-| Sea | 419 | 374 | 12.83 |
-| ROAD | 160 | 143 | 11.89 |
-| AIR | 149 | 140 | 10.71 |
-| road | 144 | 125 | 10.4 |
-| Air Freight | 157 | 139 | 10.07 |
-| Air | 297 | 269 | 9.67 |
-| air | 144 | 130 | 7.69 |
-
-```text
-LATE DELIVERY RATE BY CARRIER (at least 20 known outcomes)
-```
-
-| carrier_name | shipments | known_outcomes | late_rate | mean_cost_per_kg | claims |
-|---|---|---|---|---|---|
-| RailCore Express | 175 | 160 | 16.88 | 1.101 | 23 |
-| IronTrack Rail | 184 | 161 | 16.77 | 1.106 | 19 |
-| BlueWave Maritime | 191 | 169 | 15.98 | 0.8355 | 21 |
-| DeepSea Carriers | 161 | 150 | 15.33 | 0.8488 | 12 |
-| RoadRunner Freight | 167 | 144 | 15.28 | 1.546 | 11 |
-| PortKing Marine | 183 | 167 | 14.37 | 0.8573 | 20 |
-| EuroLine Transport | 185 | 169 | 12.43 | 1.592 | 20 |
-| TransContinental Haulage | 162 | 145 | 12.41 | 1.551 | 10 |
-| SilverArrow Air | 182 | 167 | 11.98 | 5.147 | 16 |
-| AeroSwift Cargo | 198 | 176 | 11.36 | 5.172 | 11 |
-| Continental Trucking | 170 | 150 | 10 | 1.596 | 18 |
-| SkyBridge Air Cargo | 199 | 179 | 8.94 | 5.197 | 18 |
-| oceanlink shipping | 164 | 145 | 7.59 | 0.8407 | 15 |
-| JetStream Logistics | 161 | 150 | 5.33 | 5.18 | 16 |
-
-```text
-NUMERIC CORRELATIONS (Pearson)
-```
-
-| index | weight_kg | total_freight_cost | cost_per_kg | transit_days | days_late | total_billed_amount_usd | claim_count | total_claim_amount_usd |
-|---|---|---|---|---|---|---|---|---|
-| weight_kg | 1 | 0.01 | -0.07 | 0.01 | -0 | 0 | -0.02 | -0.01 |
-| total_freight_cost | 0.01 | 1 | 0.5 | -0.05 | -0.01 | 0.95 | -0 | 0.01 |
-| cost_per_kg | -0.07 | 0.5 | 1 | -0.11 | -0.02 | 0.46 | -0.02 | -0.02 |
-| transit_days | 0.01 | -0.05 | -0.11 | 1 | 0.56 | -0.05 | 0.02 | 0.01 |
-| days_late | -0 | -0.01 | -0.02 | 0.56 | 1 | -0.01 | 0 | 0 |
-| total_billed_amount_usd | 0 | 0.95 | 0.46 | -0.05 | -0.01 | 1 | -0.01 | 0.01 |
-| claim_count | -0.02 | -0 | -0.02 | 0.02 | 0 | -0.01 | 1 | 0.64 |
-| total_claim_amount_usd | -0.01 | 0.01 | -0.02 | 0.01 | 0 | 0.01 | 0.64 | 1 |
-
-<p align="center"><img src="images/eda_01_metric_distributions.png" width="100%"></p>
-
-<p align="center"><img src="images/eda_02_delivery_outcomes.png" width="100%"></p>
-
 
 ---
 
@@ -1521,9 +1554,7 @@ One modelling table per objective, each with only the columns that are known **b
 
 Late delivery and payment risk have fewer rows because shipments with an unknown delivery outcome and invoices still pending have no label.
 
-### Full code and output
-
-**Cell 14 – Build the five tables**
+### Code: analytical base tables
 
 ```python
 import pandas as pd
@@ -1804,13 +1835,13 @@ No missing target columns or target values found.
 SAMPLE: LATE DELIVERY ABT
 ```
 
-| index | shipment_id | customer_id | customer_tier | industry | … | ship_date | ship_month | late_flag |
-|---|---|---|---|---|---|---|---|---|
-| 1 | SHP-50821 | CUS-1044 | Gold | Automotive | … | 2025-01-16 00:00:00 | 1 | 0 |
-| 2 | SHP-51381 | CUS-1035 | Bronze | Electronics | … | 2025-12-06 00:00:00 | 12 | 0 |
-| 4 | SHP-52393 | CUS-1030 | Gold | Pharma | … | 2025-03-05 00:00:00 | 3 | 0 |
-| 5 | SHP-50710 | CUS-1041 | Gold | Fashion | … | 2025-08-28 00:00:00 | 8 | 0 |
-| 6 | SHP-51823 | CUS-1050 | silver | Retail | … | 2025-10-24 00:00:00 | 10 | 1 |
+| index | shipment_id | customer_id | customer_tier | … | ship_date | ship_month | late_flag |
+|---|---|---|---|---|---|---|---|
+| 1 | SHP-50821 | CUS-1044 | Gold | … | 2025-01-16 00:00:00 | 1 | 0 |
+| 2 | SHP-51381 | CUS-1035 | Bronze | … | 2025-12-06 00:00:00 | 12 | 0 |
+| 4 | SHP-52393 | CUS-1030 | Gold | … | 2025-03-05 00:00:00 | 3 | 0 |
+| 5 | SHP-50710 | CUS-1041 | Gold | … | 2025-08-28 00:00:00 | 8 | 0 |
+| 6 | SHP-51823 | CUS-1050 | silver | … | 2025-10-24 00:00:00 | 10 | 1 |
 
 
 ---
@@ -1827,9 +1858,14 @@ Text columns (customer tier, industry, countries, carrier, transport mode) becom
 | Claim risk | 7 | 172 | 189 |
 | Anomaly review | 3 | 113 | 123 |
 
-### Full code and output
+### Charts
 
-**Cell 15 – One-hot encode**
+<p align="center">
+  <img src="images/encode_01_columns.png" alt="Columns before and after encoding" width="100%">
+</p>
+<p align="center"><em>Columns before and after encoding</em></p>
+
+### Code: encode categorical columns
 
 ```python
 import pandas as pd
@@ -1925,14 +1961,27 @@ CATEGORICAL ENCODING SUMMARY
 ENCODED TABLE SAMPLE: LATE DELIVERY
 ```
 
-| index | shipment_id | customer_id | contract_sla_days | credit_limit_usd | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
-|---|---|---|---|---|---|---|---|---|
-| 1 | SHP-50821 | CUS-1044 | 7 | 7.2e+04 | … | 0 | 0 | 0 |
-| 2 | SHP-51381 | CUS-1035 | 7 | 3.4e+05 | … | 0 | 0 | 0 |
-| 4 | SHP-52393 | CUS-1030 | 10 | 1.93e+05 | … | 0 | 0 | 0 |
-| 5 | SHP-50710 | CUS-1041 | <NA> | 2.49e+05 | … | 0 | 0 | 0 |
-| 6 | SHP-51823 | CUS-1050 | 7 | 1.12e+05 | … | 0 | 0 | 0 |
+| index | shipment_id | customer_id | contract_sla_days | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
+|---|---|---|---|---|---|---|---|
+| 1 | SHP-50821 | CUS-1044 | 7 | … | 0 | 0 | 0 |
+| 2 | SHP-51381 | CUS-1035 | 7 | … | 0 | 0 | 0 |
+| 4 | SHP-52393 | CUS-1030 | 10 | … | 0 | 0 | 0 |
+| 5 | SHP-50710 | CUS-1041 | <NA> | … | 0 | 0 | 0 |
+| 6 | SHP-51823 | CUS-1050 | 7 | … | 0 | 0 | 0 |
 
+### Code: charts
+
+```python
+def chart_encoding():
+    names = ["Late delivery", "Freight cost", "Payment risk", "Claim risk", "Anomaly review"]
+    before, after = [17, 15, 12, 17, 10], [189, 187, 40, 189, 123]
+    fig, ax = plt.subplots(figsize=(9, 3.8)); x = np.arange(5)
+    ax.bar(x - .2, before, .4, color=GREY, label="Before encoding"); ax.bar(x + .2, after, .4, color=BLUE, label="After encoding")
+    for i, v in enumerate(after): ax.text(i + .2, v + 3, str(v), ha="center", fontsize=9)
+    ax.set_xticks(x); ax.set_xticklabels(names); ax.legend(frameon=False)
+    ax.set_title("Columns before and after one-hot encoding")
+    save(fig, "encode_01_columns")
+```
 
 ---
 
@@ -1948,9 +1997,7 @@ Predictors (X) and the target (y) are split apart. IDs and dates are held back a
 | Claim risk | 2,500 | 184 | `has_claim` |
 | Anomaly review | 2,500 | 121 | none |
 
-### Full code and output
-
-**Cell 16 – Split X and y**
+### Code: separate X and y
 
 ```python
 import pandas as pd
@@ -2070,13 +2117,13 @@ EXAMPLE: LATE DELIVERY
 X:
 ```
 
-| index | contract_sla_days | credit_limit_usd | contract_rate_per_kg_usd | weight_kg | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 7 | 7.2e+04 | 2.98 | 97.1 | … | 0 | 0 | 0 |
-| 2 | 7 | 3.4e+05 | 5.98 | 1014 | … | 0 | 0 | 0 |
-| 4 | 10 | 1.93e+05 | 4.47 | 39.5 | … | 0 | 0 | 0 |
-| 5 | <NA> | 2.49e+05 | 2.34 | 124 | … | 0 | 0 | 0 |
-| 6 | 7 | 1.12e+05 | 5.22 | 164.4 | … | 0 | 0 | 0 |
+| index | contract_sla_days | credit_limit_usd | contract_rate_per_kg_usd | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
+|---|---|---|---|---|---|---|---|
+| 1 | 7 | 7.2e+04 | 2.98 | … | 0 | 0 | 0 |
+| 2 | 7 | 3.4e+05 | 5.98 | … | 0 | 0 | 0 |
+| 4 | 10 | 1.93e+05 | 4.47 | … | 0 | 0 | 0 |
+| 5 | <NA> | 2.49e+05 | 2.34 | … | 0 | 0 | 0 |
+| 6 | 7 | 1.12e+05 | 5.22 | … | 0 | 0 | 0 |
 
 ```text
 y:
@@ -2104,9 +2151,14 @@ The split is **chronological**: the earliest 80% of rows train the model and the
 | Claim risk | `ship_date` | 2026-03-14 | 1,980 | 496 |
 | Payment risk | `invoice_date` | 2026-03-20 | 1,504 | 378 |
 
-### Full code and output
+### Charts
 
-**Cell 17 – Chronological split**
+<p align="center">
+  <img src="images/split_01_train_test_timeline.png" alt="Train and test periods" width="100%">
+</p>
+<p align="center"><em>Train and test periods</em></p>
+
+### Code: train test split
 
 ```python
 import pandas as pd
@@ -2222,6 +2274,25 @@ ANOMALY REVIEW
 No train/test split applied. 2,500 rows retained for unsupervised review.
 ```
 
+### Code: charts
+
+```python
+def chart_split(metadata_tables, date_for_objective, y_train, y_test):
+    names = {"late_delivery": "Late delivery", "freight_cost": "Freight cost", "payment_risk": "Payment risk", "claim_risk": "Claim risk"}
+    fig, axs = plt.subplots(len(names), 1, figsize=(10, 6.4), sharex=True)
+    for ax, (k, nm) in zip(axs, names.items()):
+        d = pd.to_datetime(metadata_tables[k][date_for_objective[k]])
+        tr, te = d.loc[y_train[k].index], d.loc[y_test[k].index]
+        for s, col, lab in ((tr, BLUE, "Train (earliest 80%)"), (te, ORANGE, "Test (latest 20%)")):
+            m = s.dt.to_period("M").dt.to_timestamp().value_counts().sort_index()
+            ax.bar(m.index, m.values, width=20, color=col, label=lab)
+        ax.set_ylabel(nm, rotation=0, ha="right", va="center", fontsize=9)
+        ax.axvline(te.min(), color=INK, lw=1, ls="--")
+    h, l = axs[0].get_legend_handles_labels()
+    fig.legend(h, l, frameon=False, ncol=2, loc="upper right", bbox_to_anchor=(.98, .99))
+    fig.suptitle("Chronological split: the model never sees the future", x=.01, ha="left", fontweight="bold", fontsize=11)
+    save(fig, "split_01_train_test_timeline")
+```
 
 ---
 
@@ -2229,9 +2300,7 @@ No train/test split applied. 2,500 rows retained for unsupervised review.
 
 A `StandardScaler` is fitted on the **training rows only** and applied to the continuous columns (4 or 5 per model). The 0/1 dummy columns are left alone. Fitting on training data only prevents test information leaking into the scaler. The scaler is saved and reused by the app.
 
-### Full code and output
-
-**Cell 18 – Scale continuous columns**
+### Code: feature scaling
 
 ```python
 import pandas as pd
@@ -2329,13 +2398,13 @@ FEATURE SCALING SUMMARY
 Example scaled training data: late delivery
 ```
 
-| index | contract_sla_days | credit_limit_usd | contract_rate_per_kg_usd | weight_kg | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 0.5591 | -1.347 | -0.3253 | -0.05635 | … | 0 | 0 | 0 |
-| 2 | 0.5591 | 1.131 | 1.633 | -0.003815 | … | 0 | 0 | 0 |
-| 4 | 1.717 | -0.2282 | 0.6475 | -0.05965 | … | 0 | 0 | 0 |
-| 5 | <NA> | 0.2896 | -0.7431 | -0.05481 | … | 0 | 0 | 0 |
-| 6 | 0.5591 | -0.9773 | 1.137 | -0.05249 | … | 0 | 0 | 0 |
+| index | contract_sla_days | credit_limit_usd | contract_rate_per_kg_usd | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
+|---|---|---|---|---|---|---|---|
+| 1 | 0.5591 | -1.347 | -0.3253 | … | 0 | 0 | 0 |
+| 2 | 0.5591 | 1.131 | 1.633 | … | 0 | 0 | 0 |
+| 4 | 1.717 | -0.2282 | 0.6475 | … | 0 | 0 | 0 |
+| 5 | <NA> | 0.2896 | -0.7431 | … | 0 | 0 | 0 |
+| 6 | 0.5591 | -0.9773 | 1.137 | … | 0 | 0 | 0 |
 
 
 ---
@@ -2350,11 +2419,9 @@ Four candidate models per objective, each inside a pipeline with a median impute
 | Freight cost | Ridge Regression, Random Forest Regressor, Extra Trees Regressor, Gradient Boosting Regressor |
 | Anomaly review | Isolation Forest, Local Outlier Factor, One-Class SVM |
 
-### Full code and output
+### Code: train model
 
 #### Objective 1: Raise on-time delivery and SLA adherence
-
-**Cell 19**
 
 ```python
 import pandas as pd
@@ -2461,10 +2528,7 @@ Training target counts:
 | 0 | 1547 |
 | 1 | 234 |
 
-
 #### Objective 2: Cut freight cost and protect margin
-
-**Cell 23**
 
 ```python
 import pandas as pd
@@ -2564,10 +2628,7 @@ Candidate models trained: 4
 | Extra Trees Regressor | trained |
 | Gradient Boosting Regressor | trained |
 
-
 #### Objective 3: Close revenue leakage and speed up cash collection
-
-**Cell 27**
 
 ```python
 import pandas as pd
@@ -2679,10 +2740,7 @@ Training target counts (0 = Paid, 1 = Overdue/Disputed):
 | Extra Trees | trained |
 | Gradient Boosting | trained |
 
-
 #### Objective 4: Reduce claims, damage and loss
-
-**Cell 31**
 
 ```python
 import pandas as pd
@@ -2807,10 +2865,7 @@ Training target counts (0 = No Claim, 1 = Claim):
 | Extra Trees | trained |
 | Gradient Boosting | trained |
 
-
 #### Objective 5: Shipment and billing anomaly review
-
-**Cell 35**
 
 ```python
 import pandas as pd
@@ -2904,11 +2959,9 @@ Candidate detectors trained: 3
 
 Every trained model scores the held-out test rows. The prediction tables keep the shipment or invoice ID and date, so any score can be traced back. For the anomaly detectors, the whole table is scored and flagged.
 
-### Full code and output
+### Code: predict X_test
 
 #### Objective 1: Raise on-time delivery and SLA adherence
-
-**Cell 20**
 
 ```python
 import pandas as pd
@@ -2962,18 +3015,15 @@ display(objective1_predictions.head(5))
 Predictions generated for 446 test shipments using 4 models.
 ```
 
-| index | shipment_id | ship_date | logistic_regression_prediction | logistic_regression_late_probability | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
-|---|---|---|---|---|---|---|---|---|
-| 9 | SHP-51603 | 2026-03-18 00:00:00 | 1 | 1 | … | 0.12 | 0 | 0.01699 |
-| 10 | SHP-51426 | 2026-03-21 00:00:00 | 1 | 1 | … | 0.04333 | 0 | 0.01524 |
-| 14 | SHP-51296 | 2026-04-22 00:00:00 | 1 | 1 | … | 0.003333 | 0 | 0.01757 |
-| 30 | SHP-50843 | 2026-06-14 00:00:00 | 1 | 1 | … | 0.02 | 0 | 0.01757 |
-| 31 | SHP-51330 | 2026-03-22 00:00:00 | 1 | 1 | … | 0.08 | 0 | 0.0163 |
-
+| index | shipment_id | ship_date | logistic_regression_prediction | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
+|---|---|---|---|---|---|---|---|
+| 9 | SHP-51603 | 2026-03-18 00:00:00 | 1 | … | 0.12 | 0 | 0.01699 |
+| 10 | SHP-51426 | 2026-03-21 00:00:00 | 1 | … | 0.04333 | 0 | 0.01524 |
+| 14 | SHP-51296 | 2026-04-22 00:00:00 | 1 | … | 0.003333 | 0 | 0.01757 |
+| 30 | SHP-50843 | 2026-06-14 00:00:00 | 1 | … | 0.02 | 0 | 0.01757 |
+| 31 | SHP-51330 | 2026-03-22 00:00:00 | 1 | … | 0.08 | 0 | 0.0163 |
 
 #### Objective 2: Cut freight cost and protect margin
-
-**Cell 24**
 
 ```python
 import pandas as pd
@@ -3019,7 +3069,7 @@ display(freight_cost_predictions.head(5))
 Predictions generated for 496 test shipments using 4 models.
 ```
 
-| index | shipment_id | ship_date | ridge_regression_prediction_usd | random_forest_regressor_prediction_usd | extra_trees_regressor_prediction_usd | gradient_boosting_regressor_predictio... |
+| index | shipment_id | ship_date | ridge_regression_prediction_usd | random_forest_regressor_predict... | extra_trees_regressor_predictio... | gradient_boosting_regressor_pre... |
 |---|---|---|---|---|---|---|
 | 0 | SHP-50612 | 2026-05-16 00:00:00 | 764.9 | 344.2 | 307.5 | 340.5 |
 | 3 | SHP-50964 | 2026-03-22 00:00:00 | 36.2 | 24.73 | 35.42 | -6.43 |
@@ -3027,10 +3077,7 @@ Predictions generated for 496 test shipments using 4 models.
 | 10 | SHP-51426 | 2026-03-21 00:00:00 | 217 | 128.6 | 218.6 | 93.21 |
 | 14 | SHP-51296 | 2026-04-22 00:00:00 | 345.1 | 192.1 | 179.1 | 131.1 |
 
-
 #### Objective 3: Close revenue leakage and speed up cash collection
-
-**Cell 28**
 
 ```python
 import pandas as pd
@@ -3077,18 +3124,15 @@ display(payment_risk_predictions.head(5))
 Predictions generated for 378 test invoices using 4 models.
 ```
 
-| index | invoice_id | shipment_id | invoice_date | logistic_regression_prediction | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
-|---|---|---|---|---|---|---|---|---|
-| 5 | INV-700005 | SHP-51622 | 2026-06-16 00:00:00 | 1 | … | 0.4167 | 0 | 0.2175 |
-| 8 | INV-700008 | SHP-50165 | 2026-05-21 00:00:00 | 0 | … | 0.1367 | 0 | 0.1927 |
-| 9 | INV-700009 | SHP-50395 | 2026-06-28 00:00:00 | 1 | … | 0.3533 | 0 | 0.2 |
-| 16 | INV-700016 | SHP-50887 | 2026-04-15 00:00:00 | 1 | … | 0.2833 | 0 | 0.2866 |
-| 20 | INV-700020 | SHP-52301 | 2026-05-12 00:00:00 | 0 | … | 0.02479 | 0 | 0.2244 |
-
+| index | invoice_id | shipment_id | invoice_date | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
+|---|---|---|---|---|---|---|---|
+| 5 | INV-700005 | SHP-51622 | 2026-06-16 00:00:00 | … | 0.4167 | 0 | 0.2175 |
+| 8 | INV-700008 | SHP-50165 | 2026-05-21 00:00:00 | … | 0.1367 | 0 | 0.1927 |
+| 9 | INV-700009 | SHP-50395 | 2026-06-28 00:00:00 | … | 0.3533 | 0 | 0.2 |
+| 16 | INV-700016 | SHP-50887 | 2026-04-15 00:00:00 | … | 0.2833 | 0 | 0.2866 |
+| 20 | INV-700020 | SHP-52301 | 2026-05-12 00:00:00 | … | 0.02479 | 0 | 0.2244 |
 
 #### Objective 4: Reduce claims, damage and loss
-
-**Cell 32**
 
 ```python
 import pandas as pd
@@ -3138,23 +3182,20 @@ display(claim_risk_predictions.head(10))
 Predictions generated for 496 test shipments using 4 models.
 ```
 
-| index | shipment_id | ship_date | logistic_regression_prediction | logistic_regression_claim_probability | … | extra_trees_claim_probability | gradient_boosting_prediction | gradient_boosting_claim_probability |
-|---|---|---|---|---|---|---|---|---|
-| 0 | SHP-50612 | 2026-05-16 00:00:00 | 0 | 0.07117 | … | 0.006667 | 0 | 0.2588 |
-| 3 | SHP-50964 | 2026-03-22 00:00:00 | 0 | 0.04572 | … | 0.02333 | 0 | 0.3152 |
-| 9 | SHP-51603 | 2026-03-18 00:00:00 | 0 | 0.1417 | … | 0.06667 | 1 | 0.506 |
-| 10 | SHP-51426 | 2026-03-21 00:00:00 | 0 | 0.1642 | … | 0.02667 | 0 | 0.2812 |
-| 14 | SHP-51296 | 2026-04-22 00:00:00 | 0 | 0.1964 | … | 0.13 | 0 | 0.2823 |
-| 30 | SHP-50843 | 2026-06-14 00:00:00 | 0 | 0.3881 | … | 0.06333 | 0 | 0.3797 |
-| 31 | SHP-51330 | 2026-03-22 00:00:00 | 1 | 0.5919 | … | 0.06667 | 0 | 0.4963 |
-| 43 | SHP-51974 | 2026-06-17 00:00:00 | 1 | 0.5592 | … | 0.1 | 0 | 0.4714 |
-| 49 | SHP-50287 | 2026-04-08 00:00:00 | 1 | 0.5375 | … | 0.1033 | 0 | 0.403 |
-| 53 | SHP-51001 | 2026-03-15 00:00:00 | 1 | 0.678 | … | 0.09 | 1 | 0.5672 |
-
+| index | shipment_id | ship_date | logistic_regression_prediction | … | extra_trees_claim_probability | gradient_boosting_prediction | gradient_boosting_claim_probabi... |
+|---|---|---|---|---|---|---|---|
+| 0 | SHP-50612 | 2026-05-16 00:00:00 | 0 | … | 0.006667 | 0 | 0.2588 |
+| 3 | SHP-50964 | 2026-03-22 00:00:00 | 0 | … | 0.02333 | 0 | 0.3152 |
+| 9 | SHP-51603 | 2026-03-18 00:00:00 | 0 | … | 0.06667 | 1 | 0.506 |
+| 10 | SHP-51426 | 2026-03-21 00:00:00 | 0 | … | 0.02667 | 0 | 0.2812 |
+| 14 | SHP-51296 | 2026-04-22 00:00:00 | 0 | … | 0.13 | 0 | 0.2823 |
+| 30 | SHP-50843 | 2026-06-14 00:00:00 | 0 | … | 0.06333 | 0 | 0.3797 |
+| 31 | SHP-51330 | 2026-03-22 00:00:00 | 1 | … | 0.06667 | 0 | 0.4963 |
+| 43 | SHP-51974 | 2026-06-17 00:00:00 | 1 | … | 0.1 | 0 | 0.4714 |
+| 49 | SHP-50287 | 2026-04-08 00:00:00 | 1 | … | 0.1033 | 0 | 0.403 |
+| 53 | SHP-51001 | 2026-03-15 00:00:00 | 1 | … | 0.09 | 1 | 0.5672 |
 
 #### Objective 5: Shipment and billing anomaly review
-
-**Cell 36**
 
 ```python
 import numpy as np
@@ -3244,18 +3285,18 @@ ANOMALY REVIEW SCORING SUMMARY
 TOP 10 ISOLATION FOREST CASES FOR REVIEW
 ```
 
-| index | shipment_id | ship_date | isolation_forest_flag | isolation_forest_score | local_outlier_factor_flag | local_outlier_factor_score | one_class_svm_flag | one_class_svm_score |
-|---|---|---|---|---|---|---|---|---|
-| 905 | SHP-50397 | 2025-04-25 00:00:00 | 1 | -0.1105 | -1 | 1.681 | -1 | 1.743 |
-| 1170 | SHP-50757 | 2026-04-09 00:00:00 | 1 | -0.1176 | -1 | 1.553 | 1 | -8.06e-05 |
-| 842 | SHP-50779 | 2026-04-28 00:00:00 | 1 | -0.1235 | 1 | 1.397 | -1 | 0.3975 |
-| 2194 | SHP-50944 | 2026-02-15 00:00:00 | 1 | -0.1235 | 1 | 1.149 | 1 | -0.6104 |
-| 520 | SHP-50400 | 2025-06-22 00:00:00 | 1 | -0.1237 | -1 | 1.502 | 1 | -9.214e-05 |
-| 2394 | SHP-51180 | 2025-03-25 00:00:00 | 1 | -0.125 | 1 | 1.412 | -1 | 0.3465 |
-| 688 | SHP-50706 | 2025-05-20 00:00:00 | 1 | -0.1254 | 1 | 1.47 | 1 | -0.1164 |
-| 1077 | SHP-52466 | 2026-08-06 00:00:00 | 1 | -0.1272 | -1 | 1.543 | -1 | 0.4704 |
-| 1050 | SHP-51101 | 2025-12-17 00:00:00 | 1 | -0.1276 | 1 | 1.223 | -1 | 0.2787 |
-| 1388 | SHP-50967 | 2026-05-06 00:00:00 | 1 | -0.1284 | 1 | 1.48 | -1 | 0.5673 |
+| index | shipment_id | ship_date | isolation_forest_flag | … | local_outlier_factor_score | one_class_svm_flag | one_class_svm_score |
+|---|---|---|---|---|---|---|---|
+| 905 | SHP-50397 | 2025-04-25 00:00:00 | 1 | … | 1.681 | -1 | 1.743 |
+| 1170 | SHP-50757 | 2026-04-09 00:00:00 | 1 | … | 1.553 | 1 | -8.06e-05 |
+| 842 | SHP-50779 | 2026-04-28 00:00:00 | 1 | … | 1.397 | -1 | 0.3975 |
+| 2194 | SHP-50944 | 2026-02-15 00:00:00 | 1 | … | 1.149 | 1 | -0.6104 |
+| 520 | SHP-50400 | 2025-06-22 00:00:00 | 1 | … | 1.502 | 1 | -9.214e-05 |
+| 2394 | SHP-51180 | 2025-03-25 00:00:00 | 1 | … | 1.412 | -1 | 0.3465 |
+| 688 | SHP-50706 | 2025-05-20 00:00:00 | 1 | … | 1.47 | 1 | -0.1164 |
+| 1077 | SHP-52466 | 2026-08-06 00:00:00 | 1 | … | 1.543 | -1 | 0.4704 |
+| 1050 | SHP-51101 | 2025-12-17 00:00:00 | 1 | … | 1.223 | -1 | 0.2787 |
+| 1388 | SHP-50967 | 2026-05-06 00:00:00 | 1 | … | 1.48 | -1 | 0.5673 |
 
 ```text
 All anomaly flags and scores are stored in `anomaly_results`.
@@ -3268,11 +3309,38 @@ All anomaly flags and scores are stored in `anomaly_results`.
 
 Predictions are set next to the real outcomes, and feature averages are compared between actual groups. One useful read from objective 1: shipments that were truly late had an average contract SLA of 2.8 days against 6.2 for on-time ones, so tight SLAs are where lateness concentrates.
 
-### Full code and output
+The driver charts use a simple test: shuffle one input at a time (all its dummy columns together, so `carrier_name` counts as one input) and measure how much the model's score falls. A big fall means the model leans on that input. For payment and claim risk the chart is noise, because those models score close to chance.
+
+### Charts
+
+<p align="center">
+  <img src="images/obj1_features.png" alt="Objective 1: what drives late deliveries" width="100%">
+</p>
+<p align="center"><em>Objective 1: what drives late deliveries</em></p>
+
+<p align="center">
+  <img src="images/obj2_features.png" alt="Objective 2: what drives freight cost" width="100%">
+</p>
+<p align="center"><em>Objective 2: what drives freight cost</em></p>
+
+<p align="center">
+  <img src="images/obj3_features.png" alt="Objective 3: what the payment-risk model uses (near chance)" width="100%">
+</p>
+<p align="center"><em>Objective 3: what the payment-risk model uses (near chance)</em></p>
+
+<p align="center">
+  <img src="images/obj4_features.png" alt="Objective 4: what the claim-risk model uses (near chance)" width="100%">
+</p>
+<p align="center"><em>Objective 4: what the claim-risk model uses (near chance)</em></p>
+
+<p align="center">
+  <img src="images/obj5_features.png" alt="Objective 5: what makes a shipment look unusual" width="100%">
+</p>
+<p align="center"><em>Objective 5: what makes a shipment look unusual</em></p>
+
+### Code: compare X and y
 
 #### Objective 1: Raise on-time delivery and SLA adherence
-
-**Cell 21**
 
 ```python
 import pandas as pd
@@ -3355,27 +3423,27 @@ display(
 TEST FEATURES, ACTUAL TARGET, AND MODEL PREDICTIONS
 ```
 
-| index | ship_date | shipment_id | weight_kg | ship_month | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
-|---|---|---|---|---|---|---|---|---|
-| 9 | 2026-03-18 00:00:00 | SHP-51603 | 163.1 | 3 | … | 0.12 | 0 | 0.01699 |
-| 10 | 2026-03-21 00:00:00 | SHP-51426 | 139.4 | 3 | … | 0.04333 | 0 | 0.01524 |
-| 14 | 2026-04-22 00:00:00 | SHP-51296 | 114.5 | 4 | … | 0.003333 | 0 | 0.01757 |
-| 30 | 2026-06-14 00:00:00 | SHP-50843 | 125.1 | 6 | … | 0.02 | 0 | 0.01757 |
-| 31 | 2026-03-22 00:00:00 | SHP-51330 | 72.3 | 3 | … | 0.08 | 0 | 0.0163 |
-| 43 | 2026-06-17 00:00:00 | SHP-51974 | 107.8 | 6 | … | 0.3667 | 0 | 0.02227 |
-| 49 | 2026-04-08 00:00:00 | SHP-50287 | 69.2 | 4 | … | 0.006667 | 0 | 0.01401 |
-| 53 | 2026-03-15 00:00:00 | SHP-51001 | 77.8 | 3 | … | 0.03 | 0 | 0.0136 |
-| 62 | 2026-04-27 00:00:00 | SHP-51349 | 393.2 | 4 | … | 0.04 | 0 | 0.01897 |
-| 69 | 2026-03-31 00:00:00 | SHP-50579 | 237.9 | 3 | … | 0 | 0 | 0.01757 |
+| index | ship_date | shipment_id | weight_kg | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
+|---|---|---|---|---|---|---|---|
+| 9 | 2026-03-18 00:00:00 | SHP-51603 | 163.1 | … | 0.12 | 0 | 0.01699 |
+| 10 | 2026-03-21 00:00:00 | SHP-51426 | 139.4 | … | 0.04333 | 0 | 0.01524 |
+| 14 | 2026-04-22 00:00:00 | SHP-51296 | 114.5 | … | 0.003333 | 0 | 0.01757 |
+| 30 | 2026-06-14 00:00:00 | SHP-50843 | 125.1 | … | 0.02 | 0 | 0.01757 |
+| 31 | 2026-03-22 00:00:00 | SHP-51330 | 72.3 | … | 0.08 | 0 | 0.0163 |
+| 43 | 2026-06-17 00:00:00 | SHP-51974 | 107.8 | … | 0.3667 | 0 | 0.02227 |
+| 49 | 2026-04-08 00:00:00 | SHP-50287 | 69.2 | … | 0.006667 | 0 | 0.01401 |
+| 53 | 2026-03-15 00:00:00 | SHP-51001 | 77.8 | … | 0.03 | 0 | 0.0136 |
+| 62 | 2026-04-27 00:00:00 | SHP-51349 | 393.2 | … | 0.04 | 0 | 0.01897 |
+| 69 | 2026-03-31 00:00:00 | SHP-50579 | 237.9 | … | 0 | 0 | 0.01757 |
 
 ```text
 FEATURE VALUES GROUPED BY ACTUAL DELIVERY OUTCOME
 ```
 
-| actual_late_flag | weight_kg | ship_month | contract_sla_days | contract_rate_per_kg_usd | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
-|---|---|---|---|---|---|---|---|---|
-| 0 | 2196 | 4.68 | 6.16 | 3.45 | … | 0.07 | 0.04 | 0 |
-| 1 | 284.7 | 4.73 | 2.82 | 3.38 | … | 0.07 | 0.07 | 0 |
+| actual_late_flag | weight_kg | ship_month | contract_sla_days | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
+|---|---|---|---|---|---|---|---|
+| 0 | 2,196 | 4.68 | 6.16 | … | 0.07 | 0.04 | 0 |
+| 1 | 284.7 | 4.73 | 2.82 | … | 0.07 | 0.07 | 0 |
 
 ```text
 ACTUAL TARGET COUNTS
@@ -3386,10 +3454,7 @@ ACTUAL TARGET COUNTS
 | 0 | 402 |
 | 1 | 44 |
 
-
 #### Objective 2: Cut freight cost and protect margin
-
-**Cell 25**
 
 ```python
 import pandas as pd
@@ -3456,18 +3521,18 @@ print("\nComparison table stored in `comparison`.")
 TEST FEATURES, ACTUAL FREIGHT COST, AND MODEL PREDICTIONS
 ```
 
-| index | ship_date | shipment_id | contract_sla_days | contract_rate_per_kg_usd | … | random_forest_regressor_prediction_usd | extra_trees_regressor_prediction_usd | gradient_boosting_regressor_predictio... |
-|---|---|---|---|---|---|---|---|---|
-| 0 | 2026-05-16 00:00:00 | SHP-50612 | 10 | 3.97 | … | 344.2 | 307.5 | 340.5 |
-| 3 | 2026-03-22 00:00:00 | SHP-50964 | 7 | 1.87 | … | 24.73 | 35.42 | -6.43 |
-| 9 | 2026-03-18 00:00:00 | SHP-51603 | 3 | 2.34 | … | 293 | 187.1 | 203.2 |
-| 10 | 2026-03-21 00:00:00 | SHP-51426 | 7 | 2.34 | … | 128.6 | 218.6 | 93.21 |
-| 14 | 2026-04-22 00:00:00 | SHP-51296 | 10 | 5.17 | … | 192.1 | 179.1 | 131.1 |
-| 30 | 2026-06-14 00:00:00 | SHP-50843 | 10 | 4.47 | … | 733.2 | 747.4 | 793.5 |
-| 31 | 2026-03-22 00:00:00 | SHP-51330 | 2 | 5.22 | … | 102.7 | 146.6 | 69.19 |
-| 43 | 2026-06-17 00:00:00 | SHP-51974 | 2 | 5.17 | … | 175.9 | 894.7 | 119.6 |
-| 49 | 2026-04-08 00:00:00 | SHP-50287 | 5 | 4.47 | … | 380.8 | 510.6 | 551.9 |
-| 53 | 2026-03-15 00:00:00 | SHP-51001 | 7 | 1.86 | … | 80.8 | 226.9 | 11.27 |
+| index | ship_date | shipment_id | contract_sla_days | … | random_forest_regressor_predict... | extra_trees_regressor_predictio... | gradient_boosting_regressor_pre... |
+|---|---|---|---|---|---|---|---|
+| 0 | 2026-05-16 00:00:00 | SHP-50612 | 10 | … | 344.2 | 307.5 | 340.5 |
+| 3 | 2026-03-22 00:00:00 | SHP-50964 | 7 | … | 24.73 | 35.42 | -6.43 |
+| 9 | 2026-03-18 00:00:00 | SHP-51603 | 3 | … | 293 | 187.1 | 203.2 |
+| 10 | 2026-03-21 00:00:00 | SHP-51426 | 7 | … | 128.6 | 218.6 | 93.21 |
+| 14 | 2026-04-22 00:00:00 | SHP-51296 | 10 | … | 192.1 | 179.1 | 131.1 |
+| 30 | 2026-06-14 00:00:00 | SHP-50843 | 10 | … | 733.2 | 747.4 | 793.5 |
+| 31 | 2026-03-22 00:00:00 | SHP-51330 | 2 | … | 102.7 | 146.6 | 69.19 |
+| 43 | 2026-06-17 00:00:00 | SHP-51974 | 2 | … | 175.9 | 894.7 | 119.6 |
+| 49 | 2026-04-08 00:00:00 | SHP-50287 | 5 | … | 380.8 | 510.6 | 551.9 |
+| 53 | 2026-03-15 00:00:00 | SHP-51001 | 7 | … | 80.8 | 226.9 | 11.27 |
 
 ```text
 ACTUAL FREIGHT COST SUMMARY
@@ -3477,7 +3542,7 @@ ACTUAL FREIGHT COST SUMMARY
 |---|---|
 | count | 496 |
 | mean | 714.8 |
-| std | 1195 |
+| std | 1,195 |
 | min | 9.63 |
 | 25% | 136.2 |
 | 50% | 307.4 |
@@ -3488,19 +3553,16 @@ ACTUAL FREIGHT COST SUMMARY
 MEAN FEATURE VALUES BY ACTUAL COST GROUP
 ```
 
-| actual_cost_group | contract_sla_days | contract_rate_per_kg_usd | weight_kg | ship_month | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
-|---|---|---|---|---|---|---|---|---|
-| Lower actual cost | 5.73 | 3.34 | 159.4 | 4.61 | … | 0.08 | 0.07 | 0 |
-| Higher actual cost | 5.94 | 3.55 | 4894 | 4.72 | … | 0.05 | 0.02 | 0 |
+| actual_cost_group | contract_sla_days | contract_rate_per_kg_usd | weight_kg | … | transport_mode_road | transport_mode_sea | transport_mode_nan |
+|---|---|---|---|---|---|---|---|
+| Lower actual cost | 5.73 | 3.34 | 159.4 | … | 0.08 | 0.07 | 0 |
+| Higher actual cost | 5.94 | 3.55 | 4,894 | … | 0.05 | 0.02 | 0 |
 
 ```text
 Comparison table stored in `comparison`.
 ```
 
-
 #### Objective 3: Close revenue leakage and speed up cash collection
-
-**Cell 29**
 
 ```python
 import pandas as pd
@@ -3573,18 +3635,18 @@ print("\nComparison table stored in `comparison`.")
 TEST FEATURES, ACTUAL PAYMENT TARGET, AND MODEL PREDICTIONS
 ```
 
-| index | invoice_date | shipment_id | invoice_id | billed_amount_usd | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
-|---|---|---|---|---|---|---|---|---|
-| 5 | 2026-06-16 00:00:00 | SHP-51622 | INV-700005 | 320.5 | … | 0.4167 | 0 | 0.2175 |
-| 8 | 2026-05-21 00:00:00 | SHP-50165 | INV-700008 | 492 | … | 0.1367 | 0 | 0.1927 |
-| 9 | 2026-06-28 00:00:00 | SHP-50395 | INV-700009 | 3950 | … | 0.3533 | 0 | 0.2 |
-| 16 | 2026-04-15 00:00:00 | SHP-50887 | INV-700016 | 153.2 | … | 0.2833 | 0 | 0.2866 |
-| 20 | 2026-05-12 00:00:00 | SHP-52301 | INV-700020 | 56.24 | … | 0.02479 | 0 | 0.2244 |
-| 24 | 2026-03-23 00:00:00 | SHP-52076 | INV-700024 | 1060 | … | 0.06 | 0 | 0.2436 |
-| 27 | 2026-04-19 00:00:00 | SHP-51919 | INV-700027 | 67.07 | … | 0.71 | 0 | 0.3727 |
-| 34 | 2026-05-27 00:00:00 | SHP-50336 | INV-700034 | 326 | … | 0.41 | 0 | 0.3115 |
-| 62 | 2026-06-17 00:00:00 | SHP-50332 | INV-700062 | 110 | … | 0.7167 | 0 | 0.3056 |
-| 70 | 2026-06-24 00:00:00 | SHP-51974 | INV-700070 | 175.5 | … | 0.1767 | 0 | 0.2332 |
+| index | invoice_date | shipment_id | invoice_id | … | extra_trees_late_probability | gradient_boosting_prediction | gradient_boosting_late_probability |
+|---|---|---|---|---|---|---|---|
+| 5 | 2026-06-16 00:00:00 | SHP-51622 | INV-700005 | … | 0.4167 | 0 | 0.2175 |
+| 8 | 2026-05-21 00:00:00 | SHP-50165 | INV-700008 | … | 0.1367 | 0 | 0.1927 |
+| 9 | 2026-06-28 00:00:00 | SHP-50395 | INV-700009 | … | 0.3533 | 0 | 0.2 |
+| 16 | 2026-04-15 00:00:00 | SHP-50887 | INV-700016 | … | 0.2833 | 0 | 0.2866 |
+| 20 | 2026-05-12 00:00:00 | SHP-52301 | INV-700020 | … | 0.02479 | 0 | 0.2244 |
+| 24 | 2026-03-23 00:00:00 | SHP-52076 | INV-700024 | … | 0.06 | 0 | 0.2436 |
+| 27 | 2026-04-19 00:00:00 | SHP-51919 | INV-700027 | … | 0.71 | 0 | 0.3727 |
+| 34 | 2026-05-27 00:00:00 | SHP-50336 | INV-700034 | … | 0.41 | 0 | 0.3115 |
+| 62 | 2026-06-17 00:00:00 | SHP-50332 | INV-700062 | … | 0.7167 | 0 | 0.3056 |
+| 70 | 2026-06-24 00:00:00 | SHP-51974 | INV-700070 | … | 0.1767 | 0 | 0.2332 |
 
 ```text
 ACTUAL PAYMENT-RISK TARGET COUNTS (0 = Paid, 1 = Overdue/Disputed)
@@ -3608,10 +3670,7 @@ SELECTED FEATURE MEANS BY ACTUAL PAYMENT-RISK CLASS
 Comparison table stored in `comparison`.
 ```
 
-
 #### Objective 4: Reduce claims, damage and loss
-
-**Cell 33**
 
 ```python
 import pandas as pd
@@ -3684,18 +3743,18 @@ print("\nComparison table stored in `comparison`.")
 TEST FEATURES, ACTUAL CLAIM TARGET, AND MODEL PREDICTIONS
 ```
 
-| index | ship_date | shipment_id | contract_sla_days | credit_limit_usd | … | extra_trees_claim_probability | gradient_boosting_prediction | gradient_boosting_claim_probability |
-|---|---|---|---|---|---|---|---|---|
-| 0 | 2026-05-16 00:00:00 | SHP-50612 | 10 | 3.02e+05 | … | 0.006667 | 0 | 0.2588 |
-| 3 | 2026-03-22 00:00:00 | SHP-50964 | 7 | 2.49e+05 | … | 0.02333 | 0 | 0.3152 |
-| 9 | 2026-03-18 00:00:00 | SHP-51603 | 3 | 2.69e+05 | … | 0.06667 | 1 | 0.506 |
-| 10 | 2026-03-21 00:00:00 | SHP-51426 | 7 | 3.03e+05 | … | 0.02667 | 0 | 0.2812 |
-| 14 | 2026-04-22 00:00:00 | SHP-51296 | 10 | 1.29e+05 | … | 0.13 | 0 | 0.2823 |
-| 30 | 2026-06-14 00:00:00 | SHP-50843 | 10 | 1.5e+05 | … | 0.06333 | 0 | 0.3797 |
-| 31 | 2026-03-22 00:00:00 | SHP-51330 | 2 | 1.59e+05 | … | 0.06667 | 0 | 0.4963 |
-| 43 | 2026-06-17 00:00:00 | SHP-51974 | 2 | 2.21e+05 | … | 0.1 | 0 | 0.4714 |
-| 49 | 2026-04-08 00:00:00 | SHP-50287 | 5 | 4.9e+04 | … | 0.1033 | 0 | 0.403 |
-| 53 | 2026-03-15 00:00:00 | SHP-51001 | 7 | 3.77e+05 | … | 0.09 | 1 | 0.5672 |
+| index | ship_date | shipment_id | contract_sla_days | … | extra_trees_claim_probability | gradient_boosting_prediction | gradient_boosting_claim_probabi... |
+|---|---|---|---|---|---|---|---|
+| 0 | 2026-05-16 00:00:00 | SHP-50612 | 10 | … | 0.006667 | 0 | 0.2588 |
+| 3 | 2026-03-22 00:00:00 | SHP-50964 | 7 | … | 0.02333 | 0 | 0.3152 |
+| 9 | 2026-03-18 00:00:00 | SHP-51603 | 3 | … | 0.06667 | 1 | 0.506 |
+| 10 | 2026-03-21 00:00:00 | SHP-51426 | 7 | … | 0.02667 | 0 | 0.2812 |
+| 14 | 2026-04-22 00:00:00 | SHP-51296 | 10 | … | 0.13 | 0 | 0.2823 |
+| 30 | 2026-06-14 00:00:00 | SHP-50843 | 10 | … | 0.06333 | 0 | 0.3797 |
+| 31 | 2026-03-22 00:00:00 | SHP-51330 | 2 | … | 0.06667 | 0 | 0.4963 |
+| 43 | 2026-06-17 00:00:00 | SHP-51974 | 2 | … | 0.1 | 0 | 0.4714 |
+| 49 | 2026-04-08 00:00:00 | SHP-50287 | 5 | … | 0.1033 | 0 | 0.403 |
+| 53 | 2026-03-15 00:00:00 | SHP-51001 | 7 | … | 0.09 | 1 | 0.5672 |
 
 ```text
 ACTUAL CLAIM TARGET COUNTS (0 = No Claim, 1 = Claim)
@@ -3712,17 +3771,14 @@ SELECTED FEATURE MEANS BY ACTUAL CLAIM STATUS
 
 | actual_has_claim | weight_kg | ship_month | contract_sla_days | contract_rate_per_kg_usd |
 |---|---|---|---|---|
-| 0 | 2758 | 4.68 | 5.84 | 3.43 |
+| 0 | 2,758 | 4.68 | 5.84 | 3.43 |
 | 1 | 236.7 | 4.48 | 5.82 | 3.57 |
 
 ```text
 Comparison table stored in `comparison`.
 ```
 
-
 #### Objective 5: Shipment and billing anomaly review
-
-**Cell 37**
 
 ```python
 import pandas as pd
@@ -3792,21 +3848,73 @@ ANOMALY FLAGS BY MODEL
 MEAN FEATURE VALUES: ISOLATION FOREST FLAGGED VS NORMAL
 ```
 
-| isolation_forest_flag | weight_kg | cost_per_kg | total_freight_cost | total_billed_amount_usd | … | destination_country_united kingdom | destination_country_united states | destination_country_nan |
-|---|---|---|---|---|---|---|---|---|
-| Normal | 1504 | 2.37 | 696.6 | 783.3 | … | 0.01 | 0.01 | 0 |
+| isolation_forest_flag | weight_kg | cost_per_kg | total_freight_cost | … | destination_country_united kingdom | destination_country_united states | destination_country_nan |
+|---|---|---|---|---|---|---|---|
+| Normal | 1,504 | 2.37 | 696.6 | … | 0.01 | 0.01 | 0 |
 
 ```text
 TOP 15 FLAGGED CASES
 ```
 
-|  | weight_kg | cost_per_kg | total_freight_cost | total_billed_amount_usd | … | local_outlier_factor_score | one_class_svm_flag | one_class_svm_score |
-|---|---|---|---|---|---|---|---|---|
+| weight_kg | cost_per_kg | total_freight_cost | total_billed_amount_usd | … | local_outlier_factor_score | one_class_svm_flag | one_class_svm_score |
+|---|---|---|---|---|---|---|---|
 
 ```text
 Feature-to-flag comparison stored in `anomaly_feature_comparison`.
 ```
 
+### Code: charts
+
+```python
+PREFIXES = ['customer_tier_', 'industry_', 'hq_country_', 'carrier_name_', 'origin_country_', 'destination_country_', 'transport_mode_']
+
+
+def feature_groups(columns):
+    groups = {}
+    for c in columns:
+        for p in PREFIXES:
+            if c.startswith(p):
+                groups.setdefault(p.rstrip("_"), []).append(c); break
+        else:
+            groups[c] = [c]
+    return groups
+
+
+def grouped_importance(score_fn, X, groups, repeats=5, seed=42):
+    rng = np.random.default_rng(seed); base = score_fn(X); out = {}
+    for g, cols in groups.items():
+        drops = []
+        for _ in range(repeats):
+            Xp = X.copy(); idx = rng.permutation(len(X)); Xp[cols] = X[cols].values[idx]
+            drops.append(base - score_fn(Xp))
+        out[g] = np.mean(drops)
+    return pd.Series(out).sort_values(ascending=False)
+
+
+def chart_features(obj, name, model, X, y, title, note=None, fname=None):
+    if obj == "freight_cost":
+        score = lambda Z: -mean_absolute_error(y, model.predict(Z)); label = "Increase in average error (USD) when shuffled"
+    else:
+        cls = list(model.classes_).index(1)
+        score = lambda Z: roc_auc_score(y, model.predict_proba(Z)[:, cls]); label = "Drop in ROC AUC when shuffled"
+    imp = grouped_importance(score, X, feature_groups(X.columns)).head(8)[::-1]
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    ax.barh(imp.index, imp.values, color=BLUE, height=.6)
+    ax.set_title(title); ax.set_xlabel(label + ("\n" + note if note else "")); ax.grid(axis="x", color=GRID); ax.set_axisbelow(True)
+    save(fig, fname)
+    return imp[::-1]
+
+
+def chart_features_anomaly(X_anomaly, flagged_if):
+    num = [c for c in ["weight_kg", "cost_per_kg", "total_freight_cost", "total_billed_amount_usd", "margin_usd"] if c in X_anomaly.columns]
+    Z = (X_anomaly[num] - X_anomaly[num].mean()) / X_anomaly[num].std()
+    diff = (Z[flagged_if.values].mean() - Z[~flagged_if.values].mean()).sort_values()
+    fig, ax = plt.subplots(figsize=(9, 3.6))
+    ax.barh(diff.index, diff.values, color=ORANGE, height=.55)
+    ax.set_title("What makes a shipment look unusual (top 5% by Isolation Forest score)")
+    ax.set_xlabel("Average (in standard deviations) flagged minus not flagged"); ax.grid(axis="x", color=GRID); ax.set_axisbelow(True)
+    save(fig, "obj5_features")
+```
 
 ---
 
@@ -3824,17 +3932,59 @@ Feature-to-flag comparison stored in `anomaly_feature_comparison`.
 
 ### Charts
 
-<p align="center"><img src="images/eval_obj1_late_delivery.png" alt="Objective 1" width="100%"></p>
-<p align="center"><img src="images/eval_obj2_freight_cost.png" alt="Objective 2" width="100%"></p>
-<p align="center"><img src="images/eval_obj3_payment_risk.png" alt="Objective 3" width="100%"></p>
-<p align="center"><img src="images/eval_obj4_claim_risk.png" alt="Objective 4" width="100%"></p>
-<p align="center"><img src="images/eval_obj5_anomaly_flags.png" alt="Objective 5" width="100%"></p>
+<p align="center">
+  <img src="images/compare_obj1_late_delivery.png" alt="Objective 1: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 1: four candidate models</em></p>
 
-### Full code and output
+<p align="center">
+  <img src="images/compare_obj2_freight_cost.png" alt="Objective 2: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 2: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj3_payment_risk.png" alt="Objective 3: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 3: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj4_claim_risk.png" alt="Objective 4: four candidate models" width="100%">
+</p>
+<p align="center"><em>Objective 4: four candidate models</em></p>
+
+<p align="center">
+  <img src="images/compare_obj5_anomaly_flags.png" alt="Objective 5: share flagged by each detector" width="100%">
+</p>
+<p align="center"><em>Objective 5: share flagged by each detector</em></p>
+
+<p align="center">
+  <img src="images/obj1_evaluation.png" alt="Objective 1: late delivery, evaluation on unseen shipments" width="100%">
+</p>
+<p align="center"><em>Objective 1: late delivery, evaluation on unseen shipments</em></p>
+
+<p align="center">
+  <img src="images/obj2_evaluation.png" alt="Objective 2: freight cost, evaluation on unseen shipments" width="100%">
+</p>
+<p align="center"><em>Objective 2: freight cost, evaluation on unseen shipments</em></p>
+
+<p align="center">
+  <img src="images/obj3_evaluation.png" alt="Objective 3: payment risk, evaluation on unseen invoices" width="100%">
+</p>
+<p align="center"><em>Objective 3: payment risk, evaluation on unseen invoices</em></p>
+
+<p align="center">
+  <img src="images/obj4_evaluation.png" alt="Objective 4: claim risk, evaluation on unseen shipments" width="100%">
+</p>
+<p align="center"><em>Objective 4: claim risk, evaluation on unseen shipments</em></p>
+
+<p align="center">
+  <img src="images/obj5_evaluation.png" alt="Objective 5: anomaly review" width="100%">
+</p>
+<p align="center"><em>Objective 5: anomaly review</em></p>
+
+### Code: evaluate model
 
 #### Objective 1: Raise on-time delivery and SLA adherence
-
-**Cell 22**
 
 ```python
 import pandas as pd
@@ -3976,10 +4126,7 @@ Gradient Boosting — confusion matrix
 Prediction results stored in objective1_predictions.
 ```
 
-
 #### Objective 2: Cut freight cost and protect margin
-
-**Cell 26**
 
 ```python
 import pandas as pd
@@ -4040,17 +4187,14 @@ BUSINESS OBJECTIVE 2: TEST-SET REGRESSION EVALUATION
 | Random Forest Regressor | 146.3 | 488.7 | 0.832 |
 | Extra Trees Regressor | 227.1 | 590.6 | 0.755 |
 | Gradient Boosting Regressor | 234 | 534.5 | 0.799 |
-| Ridge Regression | 628.5 | 1104 | 0.144 |
+| Ridge Regression | 628.5 | 1,104 | 0.144 |
 
 ```text
 Best model by lowest MAE:
 Random Forest Regressor
 ```
 
-
 #### Objective 3: Close revenue leakage and speed up cash collection
-
-**Cell 30**
 
 ```python
 import pandas as pd
@@ -4180,10 +4324,7 @@ Gradient Boosting — confusion matrix
 | Actual Paid (0) | 285 | 5 |
 | Actual Late/Disputed (1) | 87 | 1 |
 
-
 #### Objective 4: Reduce claims, damage and loss
-
-**Cell 34**
 
 ```python
 import pandas as pd
@@ -4312,10 +4453,7 @@ Gradient Boosting — confusion matrix
 | Actual No Claim (0) | 289 | 161 |
 | Actual Claim (1) | 33 | 13 |
 
-
 #### Objective 5: Shipment and billing anomaly review
-
-**Cell 38**
 
 ```python
 import pandas as pd
@@ -4457,32 +4595,24 @@ SPEARMAN CORRELATION OF ANOMALY SCORE RANKINGS
 TOP 15 CASES FLAGGED BY THE MOST DETECTORS
 ```
 
-| index | shipment_id | ship_date | isolation_forest_flag | isolation_forest_score | … | one_class_svm_score | detectors_flagging_case | flagged_by_all_detectors |
-|---|---|---|---|---|---|---|---|---|
-| 905 | SHP-50397 | 2025-04-25 00:00:00 | 1 | -0.1105 | … | 1.743 | 2 | False |
-| 1077 | SHP-52466 | 2026-08-06 00:00:00 | 1 | -0.1272 | … | 0.4704 | 2 | False |
-| 850 | SHP-51006 | 2026-02-06 00:00:00 | 1 | -0.136 | … | 2.957e-05 | 2 | False |
-| 1914 | SHP-51212 | 2026-06-16 00:00:00 | 1 | -0.1387 | … | 2.398 | 2 | False |
-| 385 | SHP-50605 | 2026-04-19 00:00:00 | 1 | -0.1438 | … | 2.134 | 2 | False |
-| 1098 | SHP-52153 | 2025-03-01 00:00:00 | 1 | -0.1461 | … | 1.854 | 2 | False |
-| 1855 | SHP-51058 | 2025-06-06 00:00:00 | 1 | -0.1494 | … | 1.23 | 2 | False |
-| 861 | SHP-52408 | 2025-07-18 00:00:00 | 1 | -0.1499 | … | 1.944 | 2 | False |
-| 1618 | SHP-50734 | 2025-01-22 00:00:00 | 1 | -0.156 | … | 0.1616 | 2 | False |
-| 1170 | SHP-50757 | 2026-04-09 00:00:00 | 1 | -0.1176 | … | -8.06e-05 | 1 | False |
-| 842 | SHP-50779 | 2026-04-28 00:00:00 | 1 | -0.1235 | … | 0.3975 | 1 | False |
-| 520 | SHP-50400 | 2025-06-22 00:00:00 | 1 | -0.1237 | … | -9.214e-05 | 1 | False |
-| 2394 | SHP-51180 | 2025-03-25 00:00:00 | 1 | -0.125 | … | 0.3465 | 1 | False |
-| 1050 | SHP-51101 | 2025-12-17 00:00:00 | 1 | -0.1276 | … | 0.2787 | 1 | False |
-| 1388 | SHP-50967 | 2026-05-06 00:00:00 | 1 | -0.1284 | … | 0.5673 | 1 | False |
+| index | shipment_id | ship_date | isolation_forest_flag | … | one_class_svm_score | detectors_flagging_case | flagged_by_all_detectors |
+|---|---|---|---|---|---|---|---|
+| 905 | SHP-50397 | 2025-04-25 00:00:00 | 1 | … | 1.743 | 2 | False |
+| 1077 | SHP-52466 | 2026-08-06 00:00:00 | 1 | … | 0.4704 | 2 | False |
+| 850 | SHP-51006 | 2026-02-06 00:00:00 | 1 | … | 2.957e-05 | 2 | False |
+| 1914 | SHP-51212 | 2026-06-16 00:00:00 | 1 | … | 2.398 | 2 | False |
+| 385 | SHP-50605 | 2026-04-19 00:00:00 | 1 | … | 2.134 | 2 | False |
+| 1098 | SHP-52153 | 2025-03-01 00:00:00 | 1 | … | 1.854 | 2 | False |
+| … | … | … | … | … | … | … | … |
+| 2394 | SHP-51180 | 2025-03-25 00:00:00 | 1 | … | 0.3465 | 1 | False |
+| 1050 | SHP-51101 | 2025-12-17 00:00:00 | 1 | … | 0.2787 | 1 | False |
+| 1388 | SHP-50967 | 2026-05-06 00:00:00 | 1 | … | 0.5673 | 1 | False |
 
 ```text
 Interpretation: agreement and score correlation show detector consistency only. Review flagged records against operational context or obtain confirmed anomaly labels for true performance evaluation.
 ```
 
-
-#### Comparison charts code (all five objectives)
-
-**Cell 40**
+### Code: model comparison charts (all five objectives)
 
 ```python
 import pandas as pd
@@ -4667,26 +4797,79 @@ MACHINE LEARNING OBJECTIVES
 
 | Objective | Business question | ML task | Target | Primary metrics |
 |---|---|---|---|---|
-| 1 | Which shipments are likely to be deli... | Classification | late_flag | F1, ROC-AUC |
-| 2 | What will freight cost before booking? | Regression | total_freight_cost | MAE, RMSE, R-squared |
-| 3 | Which invoices may become overdue or ... | Classification | payment_late | Recall, ROC-AUC |
-| 4 | Which shipments are likely to lead to... | Imbalanced classification | has_claim | Precision-recall AUC |
-| 5 | Which shipments or bills are anomalous? | Unsupervised anomaly detection | None | Review flagged cases |
-
-<p align="center"><img src="images/eval_obj1_late_delivery.png" width="100%"></p>
-
-<p align="center"><img src="images/eval_obj2_freight_cost.png" width="100%"></p>
-
-<p align="center"><img src="images/eval_obj3_payment_risk.png" width="100%"></p>
-
-<p align="center"><img src="images/eval_obj4_claim_risk.png" width="100%"></p>
-
-<p align="center"><img src="images/eval_obj5_anomaly_flags.png" width="100%"></p>
+| 1 | Which shipments are likely to b... | Classification | late_flag | F1, ROC-AUC |
+| 2 | What will freight cost before b... | Regression | total_freight_cost | MAE, RMSE, R-squared |
+| 3 | Which invoices may become overd... | Classification | payment_late | Recall, ROC-AUC |
+| 4 | Which shipments are likely to l... | Imbalanced classification | has_claim | Precision-recall AUC |
+| 5 | Which shipments or bills are an... | Unsupervised anomaly detection | None | Review flagged cases |
 
 ```text
 The first four charts compare held-out test metrics. The anomaly chart compares flag rates only; without confirmed anomaly labels, it does not measure detector accuracy.
 ```
 
+### Code: charts
+
+```python
+def chart_eval_classifier(obj, fname, title, models, X, y, default):
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
+    cols = {"Logistic Regression": BLUE, "Random Forest": ORANGE, "Extra Trees": "#2a9d8f", "Gradient Boosting": "#7b4fc4"}
+    for n, m in models.items():
+        p = m.predict_proba(X)[:, list(m.classes_).index(1)]
+        f, t, _ = roc_curve(y, p); axs[0].plot(f, t, color=cols[n], lw=2.2 if n == default else 1.2, label=f"{n} ({roc_auc_score(y, p):.2f})")
+    axs[0].plot([0, 1], [0, 1], "--", color="#999"); axs[0].set_title("ROC curves (unseen data)")
+    axs[0].set_xlabel("False positive rate"); axs[0].set_ylabel("True positive rate"); axs[0].legend(frameon=False, fontsize=8, loc="lower right")
+    m = models[default]; p = m.predict_proba(X)[:, list(m.classes_).index(1)]
+    pr, rc, _ = precision_recall_curve(y, p)
+    axs[1].plot(rc, pr, color=BLUE, lw=2); axs[1].axhline(np.mean(y), color=ORANGE, ls="--", label=f"Base rate {np.mean(y):.1%}")
+    axs[1].set_title(f"Precision-recall: {default}"); axs[1].set_xlabel("Recall"); axs[1].set_ylabel("Precision")
+    axs[1].set_ylim(0, 1.02); axs[1].legend(frameon=False)
+    cm = confusion_matrix(y, (p >= .5).astype(int))
+    axs[2].imshow(cm, cmap="Blues"); axs[2].spines[:].set_visible(False)
+    for (i, j), v in np.ndenumerate(cm):
+        axs[2].text(j, i, f"{v}", ha="center", va="center", fontsize=14, color="white" if v > cm.max() / 2 else INK)
+    axs[2].set_xticks([0, 1]); axs[2].set_xticklabels(["Predicted no", "Predicted yes"]); axs[2].set_yticks([0, 1]); axs[2].set_yticklabels(["Actual no", "Actual yes"])
+    axs[2].set_title("Confusion matrix (cut-off 0.5)")
+    fig.suptitle(title, x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
+    save(fig, fname)
+
+
+def chart_eval_regressor(models, X, y, rt, default, fname):
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
+    p = models[default].predict(X)
+    axs[0].scatter(y, p, s=9, color=BLUE, alpha=.5, edgecolor="none"); lim = [5, 15000]
+    axs[0].plot(lim, lim, "--", color="#999"); axs[0].set_xscale("log"); axs[0].set_yscale("log"); axs[0].set_xlim(lim); axs[0].set_ylim(lim)
+    axs[0].set_title(f"Predicted vs actual: {default}"); axs[0].set_xlabel("Actual (USD)"); axs[0].set_ylabel("Predicted (USD)")
+    mae = pd.Series({n: mean_absolute_error(y, m.predict(X)) for n, m in models.items()}).sort_values(ascending=False)
+    axs[1].barh([n.replace(" Regressor", "").replace(" Regression", "") for n in mae.index], mae.values, color=[GREY if n != default else BLUE for n in mae.index], height=.55)
+    for i, v in enumerate(mae.values): axs[1].text(v + 8, i, f"${v:,.0f}", va="center", fontsize=9)
+    axs[1].set_title("Average error by model (lower is better)"); axs[1].set_xlim(0, mae.max() * 1.2)
+    err = pd.Series(np.abs(y.values - p), index=y.index)
+    band = pd.qcut(y, 4, labels=["Cheapest 25%", "25-50%", "50-75%", "Costliest 25%"])
+    e = err.groupby(band, observed=True).mean()
+    axs[2].bar(e.index.astype(str), e.values, color=ORANGE); axs[2].set_title("Average error by shipment cost size (USD)")
+    axs[2].tick_params(axis="x", labelsize=8)
+    fig.subplots_adjust(wspace=.55)
+    fig.suptitle("Objective 2: Freight cost, evaluation on unseen shipments", x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
+    save(fig, fname)
+
+
+def chart_eval_anomaly(anomaly_results, rt, flag_rate_summary):
+    fig, axs = plt.subplots(1, 3, figsize=(14, 4.2))
+    names = {"isolation_forest": "Isolation Forest", "local_outlier_factor": "Local Outlier Factor", "one_class_svm": "One-Class SVM"}
+    rates = pd.Series({v: float(flag_rate_summary.loc[k, "flagged_percent"]) for k, v in names.items()})
+    axs[0].barh(rates.index[::-1], rates.values[::-1], color=BLUE, height=.55)
+    for i, v in enumerate(rates.values[::-1]): axs[0].text(v + .1, i, f"{v:.2f}%", va="center", fontsize=9)
+    axs[0].set_title("Share flagged at each detector's default"); axs[0].set_xlim(0, max(rates.max() * 1.3, 1))
+    sc = anomaly_results["isolation_forest_score"].astype(float)
+    cut = sc.quantile(.95)
+    axs[1].hist(sc, bins=50, color=GREY); axs[1].axvline(cut, color=ORANGE, lw=2, label="Top 5% cut-off used in the app")
+    axs[1].set_title("Isolation Forest scores (higher = more unusual)"); axs[1].legend(frameon=False, fontsize=8)
+    m = anomaly_results.merge(rt[["shipment_id", "transport_mode"]].drop_duplicates("shipment_id"), on="shipment_id", how="left")
+    m["mode"] = clean_mode(m["transport_mode"]); top = m[m["isolation_forest_score"] > cut]["mode"].value_counts()
+    axs[2].bar(top.index.astype(str), top.values, color=ORANGE); axs[2].set_title("Top 5% unusual shipments by mode")
+    fig.suptitle("Objective 5: Anomaly review (no answer key, so we show flag rates, not accuracy)", x=.01, ha="left", fontweight="bold", fontsize=12, y=1.03)
+    save(fig, "obj5_evaluation")
+```
 
 ---
 
@@ -4696,25 +4879,48 @@ The business questions answered directly from the data, before any model. **Marg
 
 | Question | Answer |
 |---|---|
-| Which mode earns the most margin? | Air, with a margin proxy of $46,149 across its spellings. Road and sea earn the least per shipment (about $35 to $46 for most spellings) |
-| Which mode is most reliable? | Air (92.3% on time for the best spelling). Rail is the weakest at 76.6% |
+| Which mode earns the most margin? | Air: a margin proxy of $146,200 on $1.27M billed (12%), about $196 per shipment. Road and sea earn about $38 per shipment |
+| Which mode is most reliable? | Air is on time 90.4% of the time. Rail is the weakest at 83.3% |
 | How much cash is at risk? | 459 overdue or disputed invoices worth $404,348 |
 | Is any freight unbilled? | 243 shipments have no matched invoice, carrying $156,533 of freight cost |
-| Best carriers? | JetStream Logistics is the most reliable (94.7% on time). BlueWave Maritime is cheapest per kg ($0.84) |
-| What do claims cost? | Damage is the biggest claim type ($58,311 for the cleanest spelling). Weather is the costliest root cause at $38,576 |
+| Best carriers? | JetStream Logistics is the most reliable (94.7% on time) but costs about $5.21 per kg. Oceanlink Shipping is the standout: 92.4% on time at $0.83 per kg. BlueWave Maritime is similarly cheap ($0.83) but on time only 84% of the time |
+| What do claims cost? | $185,458 in total. Damage is the biggest type ($68,045 over 97 claims), then delay penalties ($56,041). Weather is the costliest named root cause at $38,576 |
+
+Mode, carrier and claim-type figures merge spelling variants (for example `AIR`, `air`, `Air Freight`) so each reads as one group.
 
 ### Charts
 
-<p align="center"><img src="images/business_01_freight_margin.png" alt="c039_01" width="100%"></p>
-<p align="center"><img src="images/business_02_on_time_delivery.png" alt="c039_02" width="100%"></p>
-<p align="center"><img src="images/business_03_invoices_cash.png" alt="c039_03" width="100%"></p>
-<p align="center"><img src="images/business_04_carrier_scorecard.png" alt="c039_04" width="100%"></p>
-<p align="center"><img src="images/business_05_claim_types.png" alt="c039_05" width="100%"></p>
-<p align="center"><img src="images/business_06_claim_root_causes.png" alt="c039_06" width="100%"></p>
+<p align="center">
+  <img src="images/business_01_freight_margin.png" alt="Freight cost and margin" width="100%">
+</p>
+<p align="center"><em>Freight cost and margin</em></p>
 
-### Full code and output
+<p align="center">
+  <img src="images/business_02_on_time_delivery.png" alt="On-time delivery and SLA" width="100%">
+</p>
+<p align="center"><em>On-time delivery and SLA</em></p>
 
-**Cell 39 – Business analysis**
+<p align="center">
+  <img src="images/business_03_invoices_cash.png" alt="Invoices and cash collection" width="100%">
+</p>
+<p align="center"><em>Invoices and cash collection</em></p>
+
+<p align="center">
+  <img src="images/business_04_carrier_scorecard.png" alt="Carrier scorecard: cost versus reliability" width="100%">
+</p>
+<p align="center"><em>Carrier scorecard: cost versus reliability</em></p>
+
+<p align="center">
+  <img src="images/business_05_claim_types.png" alt="Claims by type" width="100%">
+</p>
+<p align="center"><em>Claims by type</em></p>
+
+<p align="center">
+  <img src="images/business_06_claim_root_causes.png" alt="Claims by root cause" width="100%">
+</p>
+<p align="center"><em>Claims by root cause</em></p>
+
+### Code: business analysis
 
 ```python
 import pandas as pd
@@ -5082,15 +5288,10 @@ OBJECTIVE 1 — Freight cost and margin by transport mode
 | air | 144 | 2.047e+05 | 5.24 | 3.192e+04 | 221.7 |
 | Road | 385 | 1.735e+05 | 1.58 | 1.78e+04 | 46.24 |
 | Sea | 419 | 1.071e+05 | 0.86 | 1.72e+04 | 41.05 |
-| ROAD | 160 | 8.256e+04 | 1.58 | 8215 | 51.34 |
-| road | 144 | 6.728e+04 | 1.55 | 240.8 | 1.67 |
-| Rail | 208 | 5.935e+04 | 1.09 | 9394 | 45.16 |
-| sea | 134 | 3.733e+04 | 0.82 | 4728 | 35.28 |
-| SEA | 149 | 3.42e+04 | 0.83 | 4753 | 31.9 |
-| RAIL | 72 | 2.942e+04 | 1.14 | 4748 | 65.95 |
-| rail | 82 | 2.636e+04 | 1.11 | 3252 | 39.66 |
-
-<p align="center"><img src="images/business_01_freight_margin.png" width="100%"></p>
+| … | … | … | … | … | … |
+| SEA | 149 | 3.42e+04 | 0.83 | 4,753 | 31.9 |
+| RAIL | 72 | 2.942e+04 | 1.14 | 4,748 | 65.95 |
+| rail | 82 | 2.636e+04 | 1.11 | 3,252 | 39.66 |
 
 ```text
 OBJECTIVE 2 — On-time performance by transport mode
@@ -5104,15 +5305,10 @@ OBJECTIVE 2 — On-time performance by transport mode
 | RAIL | 64 | 76.56 |
 | ROAD | 143 | 88.11 |
 | Rail | 185 | 87.03 |
-| Road | 345 | 86.67 |
-| SEA | 140 | 87.14 |
-| Sea | 374 | 87.17 |
-| air | 130 | 92.31 |
+| … | … | … |
 | rail | 74 | 79.73 |
 | road | 125 | 89.6 |
 | sea | 120 | 84.17 |
-
-<p align="center"><img src="images/business_02_on_time_delivery.png" width="100%"></p>
 
 ```text
 OBJECTIVE 3 — Invoice status and billed amount
@@ -5120,7 +5316,7 @@ OBJECTIVE 3 — Invoice status and billed amount
 
 | payment_status_clean | invoice_count | billed_amount_usd |
 |---|---|---|
-| Paid | 1440 | 1213530.33 |
+| Paid | 1440 | 1.214e+06 |
 | Pending | 368 | 3.46e+05 |
 | Overdue | 341 | 2.972e+05 |
 | Disputed | 118 | 1.071e+05 |
@@ -5132,11 +5328,9 @@ Invoice coverage and freight cost exposure
 | index | shipment_count | freight_cost_usd |
 |---|---|---|
 | Freight cost with no invoice | nan | 1.565e+05 |
-| Invoiced freight cost | nan | 1585085.93 |
-| Invoiced shipments | 2257 | nan |
+| Invoiced freight cost | nan | 1.585e+06 |
+| Invoiced shipments | 2,257 | nan |
 | No invoice found | 243 | nan |
-
-<p align="center"><img src="images/business_03_invoices_cash.png" width="100%"></p>
 
 ```text
 OBJECTIVE 4 — Carrier scorecard
@@ -5150,17 +5344,10 @@ OBJECTIVE 4 — Carrier scorecard
 | EuroLine Transport | 185 | 1.59 | 20 | 87.57 |
 | IronTrack Rail | 184 | 1.11 | 19 | 83.23 |
 | PortKing Marine | 183 | 0.86 | 20 | 85.63 |
-| SilverArrow Air | 182 | 5.15 | 16 | 88.02 |
-| RailCore Express | 175 | 1.1 | 23 | 83.12 |
-| Continental Trucking | 170 | 1.6 | 18 | 90 |
-| RoadRunner Freight | 167 | 1.55 | 11 | 84.72 |
-| oceanlink shipping | 164 | 0.84 | 15 | 92.41 |
-| TransContinental Haulage | 162 | 1.55 | 10 | 87.59 |
+| … | … | … | … | … |
 | DeepSea Carriers | 161 | 0.85 | 12 | 84.67 |
 | JetStream Logistics | 161 | 5.18 | 16 | 94.67 |
 | nan | 18 | 2.7 | 0 | 93.75 |
-
-<p align="center"><img src="images/business_04_carrier_scorecard.png" width="100%"></p>
 
 ```text
 OBJECTIVE 5 — Claim type cost and resolution
@@ -5173,17 +5360,11 @@ OBJECTIVE 5 — Claim type cost and resolution
 | Temperature Breach | 25 | 2.032e+04 | 35.78 |
 | Customs Hold | 13 | 1.61e+04 | 49.58 |
 | Loss | 16 | 1.285e+04 | 31.17 |
-| damage | 10 | 8421 | 42.56 |
-| LOSS | 2 | 6979 | 44 |
-| delay penalty | 6 | 3647 | 53.33 |
-| CUSTOMS HOLD | 3 | 2510 | 36.33 |
-| DELAY PENALTY | 3 | 2481 | 56.5 |
-| loss | 2 | 1990 | 69.5 |
-| DAMAGE | 3 | 1313 | 30 |
+| damage | 10 | 8,421 | 42.56 |
+| … | … | … | … |
+| DAMAGE | 3 | 1,313 | 30 |
 | TEMPERATURE BREACH | 1 | 487.9 | 83 |
 | temperature breach | 1 | 128.7 | -5 |
-
-<p align="center"><img src="images/business_05_claim_types.png" width="100%"></p>
 
 ```text
 Claim amount by root cause
@@ -5199,12 +5380,6 @@ Claim amount by root cause
 | Handling | 30 | 1.708e+04 |
 | Carrier Delay | 29 | 1.64e+04 |
 
-<p align="center"><img src="images/business_06_claim_root_causes.png" width="100%"></p>
-
-```text
-Business summaries are stored in `business_analysis_tables`. Margin proxy is billed amount minus freight cost only; it is not a complete accounting margin. Freight cost without an invoice is an exposure indicator, not proof of revenue leakage.
-```
-
 
 ---
 
@@ -5219,9 +5394,7 @@ For every objective three files are saved with joblib, plus one bundle that cont
 
 That is 19 files. The app rebuilds each input in the saved column order, scales it, and scores it.
 
-### Full code and output
-
-**Cell 41 – Save the artifacts**
+### Code: save model, scaler and features
 
 ```python
 from pathlib import Path
@@ -5312,22 +5485,18 @@ print(f"\nArtifact folder: {output_dir.resolve()}")
 JOBLIB-ONLY ARTIFACTS SAVED
 ```
 
-|  | file | size_kb |
-|---|---|---|
-| 0 | model_artifacts_joblib/anomaly_review... | 4961 |
-| 1 | model_artifacts_joblib/anomaly_review... | 3.4 |
-| 2 | model_artifacts_joblib/anomaly_review... | 4957 |
-| 3 | model_artifacts_joblib/claim_risk_bun... | 4.618e+04 |
-| 4 | model_artifacts_joblib/claim_risk_fea... | 4.89 |
-| 5 | model_artifacts_joblib/claim_risk_mod... | 4.617e+04 |
-| 6 | model_artifacts_joblib/claim_risk_sca... | 1.03 |
-| 7 | model_artifacts_joblib/freight_cost_b... | 1.367e+05 |
-| … | … | … |
-| 14 | model_artifacts_joblib/late_delivery_... | 1.03 |
-| 15 | model_artifacts_joblib/payment_risk_b... | 6.765e+04 |
-| 16 | model_artifacts_joblib/payment_risk_f... | 1.02 |
-| 17 | model_artifacts_joblib/payment_risk_m... | 6.765e+04 |
-| 18 | model_artifacts_joblib/payment_risk_s... | 1.01 |
+| file | size_kb |
+|---|---|
+| model_artifacts_joblib/anomaly_... | 4,961 |
+| model_artifacts_joblib/anomaly_... | 3.4 |
+| model_artifacts_joblib/anomaly_... | 4,957 |
+| model_artifacts_joblib/claim_ri... | 4.618e+04 |
+| model_artifacts_joblib/claim_ri... | 4.89 |
+| model_artifacts_joblib/claim_ri... | 4.617e+04 |
+| … | … |
+| model_artifacts_joblib/payment_... | 1.02 |
+| model_artifacts_joblib/payment_... | 6.765e+04 |
+| model_artifacts_joblib/payment_... | 1.01 |
 
 ```text
 Artifact folder: /tmp/claude-0/-home-claude/d4834066-0350-5509-8034-a5a343a62845/scratchpad/tgen/model_artifacts_joblib
@@ -5342,9 +5511,7 @@ The 19 files are zipped into `model_artifacts_download.zip` for download.
 
 **Deployment note:** the freight-cost model file was about 140 MB, over GitHub's 100 MB limit. For the repo I re-saved each `_models.joblib` with `joblib.dump(..., compress=3)` (same models, about a quarter of the size) and left out the four `_bundle` files, which the app does not use.
 
-### Full code and output
-
-**Cell 42 – Zip the artifacts**
+### Code: download model, scaler and features
 
 ```python
 from pathlib import Path
@@ -5853,12 +6020,14 @@ elif page == "Anomaly Review":
 **Objective 1: late delivery**
 - This model has real signal. Logistic Regression ranks shipments well (ROC AUC 0.886) and caught 39 of 44 late shipments in the test period.
 - The price of that recall is false alarms: 79 on-time shipments were flagged too, so about one flag in three is a true late delivery. It works as a watch-list, not a verdict.
-- Tight contract SLAs are where lateness lives: late shipments averaged 2.8 SLA days against 6.2 for on-time ones.
-- Rail is the weakest mode and JetStream Logistics the strongest carrier (5.3% late against 16.9% for RailCore Express).
+- **Contract SLA is the dominant driver.** Shuffling it drops the model's ROC AUC by 0.22. The next biggest driver (customer HQ country) drops it by only 0.04.
+- A 2-day SLA means 45% late, a 3-day SLA 30%, and 5 days or more under 3%. Late shipments averaged 2.8 SLA days against 6.2 for on-time ones.
+- Rail is the weakest mode (16.7% late) and JetStream Logistics the strongest carrier (5.3% late against 16.9% for RailCore Express).
 
 **Objective 2: freight cost**
 - Random Forest predicts the cost of a shipment to within $146 on average (R² 0.83). Ridge Regression, the simple linear baseline, misses by $628, so the relationship is not linear.
-- Transport mode splits cost into two worlds: air runs about $5.2 per kg against $0.80 to $1.60 for road, rail and sea.
+- **Weight, transport mode and carrier drive the price.** Shuffling weight raises the average error by $589, mode by $280 and carrier by $78. Air runs about $5.22 per kg against $0.85 to $1.56 for road, rail and sea.
+- The model is most accurate on small and mid-priced shipments. Its average error is about $40 on the cheapest quarter and about $400 on the costliest quarter.
 
 **Objective 3: payment risk**
 - No model beat chance (ROC AUC 0.48 to 0.51). Billed amount, credit limit, tier and mode do not tell late payers apart in this data.
@@ -5870,6 +6039,7 @@ elif page == "Anomaly Review":
 
 **Objective 5: anomaly review and carrier ranking**
 - Isolation Forest flags nothing at its default threshold (0 of 2,500), LOF flags 11 and One-Class SVM 141. They barely agree (overlap under 7%), so these are review lists, not proof of error.
+- In the app I flag the top 5% by Isolation Forest score. Those 125 shipments are mostly air (97 of 125), and what makes them unusual is mainly high freight cost and billing, so "unusual" here largely means "expensive".
 - The carrier scorecard shows a clear trade-off: JetStream (94.7% on time) and SkyBridge (91.1%) cost about $5.2 per kg, while BlueWave, DeepSea and PortKing cost $0.84 to $0.86 but run on time only 84% to 86% of the time. oceanlink shipping is the exception: $0.84 per kg and 92.4% on time.
 
 **Across the project**
@@ -5912,7 +6082,13 @@ These are the observed baselines in the data today, not projected savings. They 
 
 The margin proxy is about 11% of billed revenue, so small changes in freight cost matter. For example, a model-guided 1% change in freight spend is about $17,000 here. That is an illustration of scale, not a promise.
 
-<p align="center"><img src="images/impact_baseline.png" alt="Impact baseline" width="100%"></p>
+### Charts
+
+<p align="center">
+  <img src="images/impact_baseline.png" alt="Observed impact baseline" width="100%">
+</p>
+<p align="center"><em>Observed impact baseline</em></p>
+
 
 ---
 
