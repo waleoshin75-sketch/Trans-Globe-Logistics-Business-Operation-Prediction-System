@@ -2,7 +2,14 @@
 
 **TransGlobe Logistics | Logistics Operations Analytics**
 
-**Python | pandas | scikit-learn | Streamlit** | An Intelligent Multi-Model System for Optimizing Freight Costs, Delivery Timelines, and Operational Risks
+**An Intelligent Multi-Model System for Optimizing Freight Costs, Delivery Timelines, and Operational Risks**
+
+<p align="left">
+<img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python">
+<img src="https://img.shields.io/badge/scikit--learn-1.9-F7931E?logo=scikitlearn&logoColor=white" alt="scikit-learn">
+<img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit">
+<img src="https://img.shields.io/badge/Models-5-2E7D32" alt="Five models">
+</p>
 
 **Author:** Adewale Oshinukan | Data Scientist | [GitHub](https://github.com/waleoshin75-sketch) | [Live App](https://trans-globe-logistics-business-operation-prediction-system-9yr.streamlit.app/)
 
