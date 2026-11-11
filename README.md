@@ -2,7 +2,7 @@
 
 **TransGlobe Logistics | Logistics Operations Analytics**
 
-**An Intelligent Multi-Model System for Optimizing Freight Costs, Delivery Timelines, and Operational Risks**
+**An Intelligent Multi Model System for Optimizing Freight Costs, Delivery Timelines, and Operational Risks**
 
 <p align="left">
 <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python">
